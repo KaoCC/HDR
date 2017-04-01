@@ -32,7 +32,7 @@ workspace "HDR"
     objdir ("Build/Obj/%{prj.name}/%{cfg.shortname}/%{cfg.platfrom}")
 
 
-    -- dofile ("./OpenCLSearch.lua" )
+    dofile ("./OpenCVConfig.lua" )
 
     -- The HDR viewer
 
