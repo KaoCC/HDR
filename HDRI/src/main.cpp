@@ -10,6 +10,9 @@
 
 #include "rawImage.hpp"
 
+#include "DebevecWeight.h"
+
+
 #include <iostream>
 #include <cstdint>
 
@@ -26,7 +29,7 @@ const std::string kDefaultFileList = "list.txt";
 static const double defaultShutterSpeed[] = {1/32, 1/16, 1/8, 1/4, 1/2, 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024};
 
 
-static void loadRawImages(const std::string& basePath, const std::string& fileName, std::vector<HDRI::rawImage>& images) {
+static void loadRawImages(const std::string& basePath, const std::string& fileName, std::vector<HDRI::RawImage>& images) {
 
 	const std::string fullPath = basePath + fileName;
 
@@ -73,7 +76,6 @@ static void loadRawImages(const std::string& basePath, const std::string& fileNa
 
 		} else {
 
-
 			std::string imageFileName;
 			double invShutterSpeed;
 
@@ -101,7 +103,7 @@ static void loadRawImages(const std::string& basePath, const std::string& fileNa
 
 int main() {
 
-	std::vector<HDRI::rawImage> imageFiles;
+	std::vector<HDRI::RawImage> imageFiles;
 
 
 	try {
@@ -110,6 +112,10 @@ int main() {
 		std::cerr << e.what() << '\n';
 	}
 
+	
+	HDRI::DebevecWeight w;
+
+	w.getWeight(0);
 
 
 	return 0;

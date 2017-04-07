@@ -5,7 +5,7 @@
 
 namespace HDRI {
 
-	void rawImage::load(const std::string fileName, double ss) {
+	void RawImage::load(const std::string fileName, double ss) {
 
 		mImageData = cv::imread(fileName);
 		mInvShutterSpeed = ss;

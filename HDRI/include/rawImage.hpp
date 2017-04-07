@@ -9,10 +9,10 @@ namespace HDRI {
 
 
 
-	class rawImage {
+	class RawImage {
 
 	public:
-		rawImage()  =default;
+		RawImage()  =default;
 
 		void load(const std::string fileName, double ss);
 
