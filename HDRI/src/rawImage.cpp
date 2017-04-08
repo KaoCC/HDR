@@ -17,6 +17,23 @@ namespace HDRI {
 			std::cerr << "Loaded: " << fileName << std::endl;
 		}
 
+
+	}
+
+	size_t RawImage::getTotalSize() const {
+		return mImageData.total();
+	}
+
+	size_t RawImage::getWidth() const {
+		return mImageData.size().width;
+	}
+
+	size_t RawImage::getHeight() const {
+		return mImageData.size().height;
+	}
+
+	const cv::Mat & RawImage::getImageData() const {
+		return mImageData;
 	}
 
 
