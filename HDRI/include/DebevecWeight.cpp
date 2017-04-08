@@ -16,7 +16,7 @@ namespace HDRI {
 		mTable.resize(N);
 		for (size_t i = 0; i < N; ++i) {
 
-			if (0.5 * (kZmax + kZmin) > i) {
+			if (i <= (0.5 * (kZmax + kZmin))) {
 				mTable[i] = i - kZmin;
 			} else {
 				mTable[i] = kZmax - i;
@@ -28,14 +28,18 @@ namespace HDRI {
 
 	}
 
+	size_t DebevecWeight::getSize() const {
+		return N;
+	}
 
 
 
-	double DebevecWeight::getWeight(int index) {
+
+	double DebevecWeight::getWeight(int index) const {
 
 		// cap ?
 
-		if (index <= kZmin || index >= kZmax) {
+		if (index < kZmin || index > kZmax) {
 			return 0;
 		} else {
 			return mTable[index];

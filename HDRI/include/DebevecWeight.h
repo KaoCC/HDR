@@ -14,7 +14,8 @@ namespace HDRI {
 	public:
 
 		DebevecWeight();
-		virtual double getWeight(int index) override;
+		virtual double getWeight(int index) const override;
+		virtual size_t getSize() const override;
 
 	private:
 
@@ -24,6 +25,7 @@ namespace HDRI {
 		static const int N;
 
 		std::vector<std::uint8_t> mTable;
+
 	};
 
 }

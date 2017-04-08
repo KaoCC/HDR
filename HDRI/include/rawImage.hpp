@@ -16,6 +16,13 @@ namespace HDRI {
 
 		void load(const std::string fileName, double ss);
 
+		size_t getTotalSize() const;
+
+		size_t getWidth() const;
+		size_t getHeight() const;
+
+		const cv::Mat& getImageData() const;
+
 	private:
 
 		

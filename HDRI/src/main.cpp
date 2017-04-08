@@ -11,12 +11,12 @@
 #include "rawImage.hpp"
 
 #include "DebevecWeight.h"
-
+#include "Common.hpp"
 
 #include <iostream>
 #include <cstdint>
 
-
+#include <opencv2/core/mat.hpp>
 
 
 const std::string kDefaultBasePath = "../Resource/";
@@ -110,12 +110,67 @@ int main() {
 		loadRawImages(kDefaultBasePath, kDefaultFileList, imageFiles);
 	} catch (std::exception& e) {
 		std::cerr << e.what() << '\n';
+		std::exit(-1);
 	}
 
 	
 	HDRI::DebevecWeight w;
 
-	w.getWeight(0);
+	//w.getWeight(0);
+
+
+
+
+	size_t width = imageFiles[0].getWidth();
+	size_t height = imageFiles[0].getHeight();
+
+
+	std::vector<std::vector<PixelData>> pixelRaw(imageFiles.size());
+
+	for (size_t idx = 0; idx < imageFiles.size(); ++idx) {
+
+
+		for (size_t y = 0; y < height; ++y) {
+			for (size_t x = 0; x < width; ++x) {
+
+				pixelRaw[idx][y * width + x].b = imageFiles[idx].getImageData().at<cv::Vec3b>(y, x)[0];
+				pixelRaw[idx][y * width + x].g = imageFiles[idx].getImageData().at<cv::Vec3b>(y, x)[1];
+				pixelRaw[idx][y * width + x].r = imageFiles[idx].getImageData().at<cv::Vec3b>(y, x)[2];
+			}
+		}
+
+	}
+
+	// convert
+	
+	std::vector<std::vector<int>> Z_r;		// Zij : i pixel, j image
+	std::vector<std::vector<int>> Z_g;
+	std::vector<std::vector<int>> Z_b;
+
+	Z_r.resize(imageFiles[0].getTotalSize());
+	Z_g.resize(imageFiles[0].getTotalSize());
+	Z_b.resize(imageFiles[0].getTotalSize());
+
+	size_t imageSz = Z_r.size();
+
+	for (size_t i = 0; i < imageSz; ++i) {			// image pixel
+
+		const size_t numOfImage = imageFiles.size();
+
+		Z_r[i].resize(numOfImage);
+		Z_g[i].resize(numOfImage);
+		Z_b[i].resize(numOfImage);
+
+		for (size_t j = 0; j < numOfImage; ++j) {		// num of iamge
+			Z_r[i][j] = pixelRaw[j][i].r;
+			Z_g[i][j] = pixelRaw[j][i].g;
+			Z_b[i][j] = pixelRaw[j][i].b;
+		}
+
+	}
+	
+
+
 
 
 	return 0;
