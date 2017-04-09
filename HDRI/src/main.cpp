@@ -147,13 +147,29 @@ static std::array<std::vector<std::vector<int>>, 3> convertToZ(const std::vector
 
 
 
-int main() {
+int main(int argc, char* argv[]) {
 
 	std::vector<HDRI::RawImage> imageFiles;
 
+	std::string basePath;
+	if (argc > 1) {
+		basePath = argv[1];
+	} else {
+		basePath = kDefaultBasePath;
+	}
+
+	std::string fileList;
+	if (argc > 2) {
+		fileList = argv[2];
+	} else {
+		fileList = kDefaultFileList;
+	}
+
+
+
 
 	try {
-		loadRawImages(kDefaultBasePath, kDefaultFileList, imageFiles);
+		loadRawImages(basePath, fileList, imageFiles);
 	} catch (std::exception& e) {
 		std::cerr << e.what() << '\n';
 		std::exit(-1);
