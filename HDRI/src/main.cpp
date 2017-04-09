@@ -21,6 +21,8 @@
 #include <opencv2/core/mat.hpp>
 #include <opencv2/opencv.hpp>
 
+#include <array>
+
 const std::string kDefaultBasePath = "../Resource/";
 const std::string kDefaultFileList = "list.txt";
 
@@ -168,21 +170,17 @@ static std::vector<std::vector<PixelData>> generateRawPixelData(const std::vecto
 }
 
 
-static std::vector<std::vector<std::vector<int>>> convertToZ(const std::vector<cv::Mat>& shrinkMat, const std::vector<std::vector<PixelData>>& pixelRaw) {
+static std::array<std::vector<std::vector<int>>, 3> convertToZ(const std::vector<std::vector<PixelData>>& pixelRaw, const size_t imageSize, const size_t numOfImage) {
 
-	std::vector<std::vector<std::vector<int>>> Z(3);		// r, g, b
+	std::array<std::vector<std::vector<int>>, 3> Z;		// r, g, b
 
-	size_t imageSize = shrinkMat[0].total();
 
 	for (auto& zColors : Z) {
 		zColors.resize(imageSize);
 	}
 
 
-
 	for (size_t i = 0; i < imageSize; ++i) {			// image pixel
-
-		const size_t numOfImage = shrinkMat.size();
 
 		Z[0][i].resize(numOfImage);
 		Z[1][i].resize(numOfImage);
@@ -201,7 +199,7 @@ static std::vector<std::vector<std::vector<int>>> convertToZ(const std::vector<c
 
 }
 
-static cv::Mat constructRadiance(const std::vector<HDRI::RawImage>& imageFiles, const std::vector<cv::Mat>& gCurves, HDRI::WeightFunction& dwf, const std::vector<double> expo) {
+static cv::Mat constructRadiance(const std::vector<HDRI::RawImage>& imageFiles, const std::array<cv::Mat, 3>& gCurves, HDRI::WeightFunction& dwf, const std::vector<double> expo) {
 
 
 	// Size ?
@@ -209,7 +207,7 @@ static cv::Mat constructRadiance(const std::vector<HDRI::RawImage>& imageFiles, 
 	size_t height = imageFiles[0].getHeight();
 
 	// radiance ?
-	cv::Mat hdrImg = cv::Mat(height, width, CV_32FC3);
+	cv::Mat hdrImg(height, width, CV_32FC3);
 
 
 	for (size_t idx = 0; idx < gCurves.size(); ++idx) {		// r, g, b
@@ -223,10 +221,10 @@ static cv::Mat constructRadiance(const std::vector<HDRI::RawImage>& imageFiles, 
 				// loop over all imgs
 				for (size_t k = 0; k < imageFiles.size(); ++k) {
 
-					int color = (int)imageFiles[k].getImageData().at<cv::Vec3b>(y, x)[idx];
-					double w = dwf.getWeight(color);
+					int pixelColor = static_cast<int>(imageFiles[k].getImageData().at<cv::Vec3b>(y, x)[idx]);
+					double w = dwf.getWeight(pixelColor);
 
-					result += (double)(w * (gCurves[idx].at<double>(color, 0) - std::log(expo[k])));
+					result += static_cast<double>(w * (gCurves[idx].at<double>(pixelColor, 0) - std::log(expo[k])));
 					weightedSum += w;
 
 				}
@@ -267,7 +265,7 @@ int main() {
 	std::cerr << "Convert\n";
 
 	// convert
-	auto Z = convertToZ(shrinkMat, pixelRaw);
+	auto Z = convertToZ(pixelRaw, shrinkMat[0].total(), shrinkMat.size());
 
 	// set exp
 	std::vector<double> expo;
@@ -277,7 +275,7 @@ int main() {
 
 
 	const int lambda = 10;
-	std::vector<cv::Mat> gCurves(3);		// R, G, B
+	std::array<cv::Mat, 3> gCurves;		// R, G, B
 	for (size_t c = 0; c < Z.size(); ++c) {
 		HDRI::LinearLeastSquares::solver(Z[c], expo, dwf, lambda, gCurves[c]);
 	}
