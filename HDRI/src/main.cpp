@@ -10,7 +10,7 @@
 
 #include "rawImage.hpp"
 
-#include "DebevecWeight.h"
+#include "DebevecWeight.hpp"
 #include "Common.hpp"
 
 #include "LinearLeastSquares.hpp"

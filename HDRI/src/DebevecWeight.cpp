@@ -1,4 +1,4 @@
-#include "DebevecWeight.h"
+#include "DebevecWeight.hpp"
 
 #include <iostream>
 
