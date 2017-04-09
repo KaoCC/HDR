@@ -113,8 +113,12 @@ cv::Mat constructRadiance(const std::vector<HDRI::RawImage>& imageFiles, const s
 
 				}
 
-
-				hdrImg.at<cv::Vec3f>(y, x)[idx] = std::exp(result / weightedSum);
+				// Be careful ! 
+				if (weightedSum == 0) {
+					hdrImg.at<cv::Vec3f>(y, x)[idx] = 0;
+				} else {
+					hdrImg.at<cv::Vec3f>(y, x)[idx] = std::exp(result / weightedSum);
+				}
 
 			}
 		}
@@ -124,6 +128,10 @@ cv::Mat constructRadiance(const std::vector<HDRI::RawImage>& imageFiles, const s
 
 	return hdrImg;
 
+}
+
+float convertRGB(float r, float g, float b) {
+	return 0.2126f * r + 0.7152f * g + 0.0722f * b;
 }
 
 

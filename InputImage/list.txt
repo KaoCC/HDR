@@ -1,6 +1,17 @@
-5
-2/Test1-1.jpg 64
-2/Test1-2.jpg 32
-2/Test1-3.jpg 16
-2/Test1-4.jpg 8
-2/Test1-5.jpg 4
+16
+1/memorial0061.png 0.03125
+1/memorial0062.png 0.0625
+1/memorial0063.png 0.125
+1/memorial0064.png 0.25
+1/memorial0065.png 0.5
+1/memorial0066.png 1
+1/memorial0067.png 2
+1/memorial0068.png 4
+1/memorial0069.png 8
+1/memorial0070.png 16
+1/memorial0071.png 32
+1/memorial0072.png 64
+1/memorial0073.png 128
+1/memorial0074.png 256
+1/memorial0075.png 512
+1/memorial0076.png 1024

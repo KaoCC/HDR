@@ -55,15 +55,31 @@ static std::vector<cv::Mat> shrinkImages(const std::vector<HDRI::RawImage>&in) {
 
 	std::vector<cv::Mat> out;
 
-	const size_t kRatio = 50;
+	const size_t kRatio = 100;
 
 	for (const auto& img : in) {
 
 		const auto& ref = img.getImageData();
 
+		//size_t resizeCol = ref.cols / kRatio;
+		//size_t resizeRow = ref.rows / kRatio;
+
+		size_t resizeCol = 15;
+		size_t resizeRow = 15;
+
+		if (resizeCol < 15) {
+			resizeCol = 15;
+		}
+
+		if (resizeRow < 15) {
+			resizeRow = 15;
+		}
+
+		std::cerr << "sample Size:" << resizeCol << " " << resizeRow << '\n';
+
 		cv::Mat shrinkMat;
 		cv::resize(ref, shrinkMat, cv::Size(ref.cols, ref.rows));
-		cv::resize(shrinkMat, shrinkMat, cv::Size(ref.cols / kRatio, ref.rows / kRatio));
+		cv::resize(shrinkMat, shrinkMat, cv::Size(resizeCol, resizeRow));
 
 		out.push_back(shrinkMat);
 	}
@@ -162,6 +178,7 @@ int main() {
 	}
 
 
+	std::cerr << "Linear Least Squares\n";
 	const int lambda = 10;
 	std::array<cv::Mat, 3> gCurves;		// R, G, B
 	for (size_t c = 0; c < Z.size(); ++c) {
