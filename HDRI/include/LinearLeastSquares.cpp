@@ -5,11 +5,11 @@
 
 
 
-void HDRI::LinearLeastSquares::solver(const std::vector<std::vector<int>> Z, const std::vector<double> deltaT, const WeightFunction& wf, cv::Mat& result) {	// zij , shutter , w, g, lE
+void HDRI::LinearLeastSquares::solver(const std::vector<std::vector<int>> Z, const std::vector<double> deltaT, const WeightFunction& wf, int lambda, cv::Mat& result) {	// zij , shutter , w, g, lE
 
 
 	//tmp
-	int lambda = 1;
+	//int lambda = 1;
 
 	// From the paper.
 
@@ -51,8 +51,8 @@ void HDRI::LinearLeastSquares::solver(const std::vector<std::vector<int>> Z, con
 	for (size_t i = 0; i < n - 1; ++i) {
 
 		A.at<double>(k, i) = lambda * wf.getWeight(i + 1);
-		A.at<double>(k, i + 1) = -2 * wf.getWeight(i + 1);
-		A.at<double>(k, i + 2) = wf.getWeight(i + 1);
+		A.at<double>(k, i + 1) = -2 * lambda * wf.getWeight(i + 1);
+		A.at<double>(k, i + 2) = lambda * wf.getWeight(i + 1);
 		++k;
 	}
 
