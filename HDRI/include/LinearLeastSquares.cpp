@@ -1,6 +1,11 @@
+
+#include <memory>
+
 #include "LinearLeastSquares.hpp"
 
-void HDRI::LinearLeastSquares::solver(const std::vector<std::vector<int>> Z, const std::vector<double> deltaT, const WeightFunction& wf, cv::Mat& gFunction, cv::Mat& lE) {	// zij , shutter , w, g, lE
+
+
+void HDRI::LinearLeastSquares::solver(const std::vector<std::vector<int>> Z, const std::vector<double> deltaT, const WeightFunction& wf, cv::Mat& result) {	// zij , shutter , w, g, lE
 
 
 	//tmp
@@ -18,7 +23,7 @@ void HDRI::LinearLeastSquares::solver(const std::vector<std::vector<int>> Z, con
 	//b.resize(A.size());
 
 
-	cv::Mat A(Z.size() * Z[0].size() + n + 1, n + Z.size(), CV_64F);
+	cv::Mat A (Z.size() * Z[0].size() + n + 1, n + Z.size(), CV_64F);
 	cv::Mat b(A.size().height, 1, CV_64F);
 
 	int k = 0;
@@ -36,7 +41,7 @@ void HDRI::LinearLeastSquares::solver(const std::vector<std::vector<int>> Z, con
 
 	}
 
-	A.at<double>(k, 128) = 1;		// get the middle to Zero  (wij * 1 - wij * 1 = 0)
+	A.at<double>(k, 128) = 1;		// set the middle to Zero 
 	++k;
 
 
@@ -56,6 +61,8 @@ void HDRI::LinearLeastSquares::solver(const std::vector<std::vector<int>> Z, con
 
 	// get g and lE
 
+	result = std::move(x);
 
 	//...
 }
+

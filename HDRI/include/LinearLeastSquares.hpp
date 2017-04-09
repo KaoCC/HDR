@@ -18,7 +18,7 @@ namespace HDRI {
 
 		LinearLeastSquares() = delete;
 
-		static void solver(const std::vector<std::vector<int>> Z, const std::vector<double> deltaT,const WeightFunction& wf, cv::Mat& gFunction, cv::Mat& lE);
+		static void solver(const std::vector<std::vector<int>> Z, const std::vector<double> deltaT,const WeightFunction& wf, cv::Mat& result);
 
 
 	};
