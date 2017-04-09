@@ -21,7 +21,7 @@
 #include <opencv2/opencv.hpp>
 #include <array>
 
-const std::string kDefaultBasePath = "../Resource/";
+const std::string kDefaultBasePath = "../InputImage/";
 const std::string kDefaultFileList = "list.txt";
 
 
@@ -55,7 +55,7 @@ static std::vector<cv::Mat> shrinkImages(const std::vector<HDRI::RawImage>&in) {
 
 	std::vector<cv::Mat> out;
 
-	const size_t kRatio = 30;
+	const size_t kRatio = 50;
 
 	for (const auto& img : in) {
 
@@ -173,7 +173,7 @@ int main() {
 	// test
 	outputCurve(gCurves[0]);
 
-
+	std::cerr << "Compute radiance\n";
 	// radiance ?
 	//cv::Mat hdrImg = constructRadiance(imageFiles, gCurves, dwf, expo);
 
