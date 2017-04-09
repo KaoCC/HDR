@@ -23,12 +23,14 @@ namespace HDRI {
 
 		const cv::Mat& getImageData() const;
 
+		double getExposure() const;
+
 	private:
 
 		
 		cv::Mat mImageData;
 		std::string mName;
-		double mInvShutterSpeed;
+		double expo;
 
 	};
 
