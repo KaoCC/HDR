@@ -1,29 +1,27 @@
 
 
 
-
 #include <vector>
-#include <string>
 
-#include <sstream>
-#include <fstream> 
 
 #include "rawImage.hpp"
 
-#include "DebevecWeight.h"
+#include "DebevecWeight.hpp"
 #include "Common.hpp"
 
 #include "LinearLeastSquares.hpp"
+#include "HDRImage.hpp"
+
+#include "ReinhardAlgo.hpp"
 
 #include <iostream>
 #include <cstdint>
 
 #include <opencv2/core/mat.hpp>
 #include <opencv2/opencv.hpp>
-
 #include <array>
 
-const std::string kDefaultBasePath = "../Resource/";
+const std::string kDefaultBasePath = "../InputImage/";
 const std::string kDefaultFileList = "list.txt";
 
 
@@ -33,75 +31,7 @@ const std::string kDefaultFileList = "list.txt";
 static const double defaultShutterSpeed[] = { 1 / 32, 1 / 16, 1 / 8, 1 / 4, 1 / 2, 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024 };
 
 
-static void loadRawImages(const std::string& basePath, const std::string& fileName, std::vector<HDRI::RawImage>& images) {
 
-	const std::string fullPath = basePath + fileName;
-
-	std::ifstream inputStream(fullPath);
-
-	if (!inputStream) {
-		throw std::runtime_error("Could not open file: " + fullPath);
-	}
-
-	std::string lineString;
-
-
-	bool numFlag = false;
-
-	std::size_t numOfImages = 0;
-	std::size_t currentImageIndex = 0;
-
-	while (std::getline(inputStream, lineString)) {
-
-		std::stringstream lineSplitter(lineString);
-		char token;
-
-		lineSplitter >> token;
-		if ((!lineSplitter) || token == '#') {
-			continue;
-		} else {
-			lineSplitter.putback(token);
-		}
-
-
-
-		if (!numFlag) {
-
-			std::size_t num = 0;
-			lineSplitter >> num;
-
-			// first number
-			numOfImages = num;
-			std::cout << "Number of image: " << numOfImages << '\n';
-			numFlag = true;
-
-			images.resize(numOfImages);
-
-
-		} else {
-
-			std::string imageFileName;
-			double invShutterSpeed;
-
-			lineSplitter >> imageFileName >> invShutterSpeed;
-
-			std::cout << "file: " << imageFileName << " shutter: " << invShutterSpeed << std::endl;
-
-
-			// read image
-			images[currentImageIndex++].load(basePath + imageFileName, invShutterSpeed);
-
-			if (currentImageIndex == numOfImages) {
-				break;
-			}
-
-		}
-
-
-	}
-
-
-}
 
 // tmp
 static void getAccurateExposure();
@@ -125,15 +55,31 @@ static std::vector<cv::Mat> shrinkImages(const std::vector<HDRI::RawImage>&in) {
 
 	std::vector<cv::Mat> out;
 
-	const size_t kRatio = 30;
+	const size_t kRatio = 100;
 
 	for (const auto& img : in) {
 
 		const auto& ref = img.getImageData();
 
+		//size_t resizeCol = ref.cols / kRatio;
+		//size_t resizeRow = ref.rows / kRatio;
+
+		size_t resizeCol = 15;
+		size_t resizeRow = 15;
+
+		if (resizeCol < 15) {
+			resizeCol = 15;
+		}
+
+		if (resizeRow < 15) {
+			resizeRow = 15;
+		}
+
+		std::cerr << "sample Size:" << resizeCol << " " << resizeRow << '\n';
+
 		cv::Mat shrinkMat;
 		cv::resize(ref, shrinkMat, cv::Size(ref.cols, ref.rows));
-		cv::resize(shrinkMat, shrinkMat, cv::Size(ref.cols / kRatio, ref.rows / kRatio));
+		cv::resize(shrinkMat, shrinkMat, cv::Size(resizeCol, resizeRow));
 
 		out.push_back(shrinkMat);
 	}
@@ -199,48 +145,6 @@ static std::array<std::vector<std::vector<int>>, 3> convertToZ(const std::vector
 
 }
 
-static cv::Mat constructRadiance(const std::vector<HDRI::RawImage>& imageFiles, const std::array<cv::Mat, 3>& gCurves, HDRI::WeightFunction& dwf, const std::vector<double> expo) {
-
-
-	// Size ?
-	size_t width = imageFiles[0].getWidth();
-	size_t height = imageFiles[0].getHeight();
-
-	// radiance ?
-	cv::Mat hdrImg(height, width, CV_32FC3);
-
-
-	for (size_t idx = 0; idx < gCurves.size(); ++idx) {		// r, g, b
-
-		for (size_t y = 0; y < height; ++y) {
-			for (size_t x = 0; x < width; ++x) {
-
-				double weightedSum = 0.0;
-				double result = 0.0;
-
-				// loop over all imgs
-				for (size_t k = 0; k < imageFiles.size(); ++k) {
-
-					int pixelColor = static_cast<int>(imageFiles[k].getImageData().at<cv::Vec3b>(y, x)[idx]);
-					double w = dwf.getWeight(pixelColor);
-
-					result += static_cast<double>(w * (gCurves[idx].at<double>(pixelColor, 0) - std::log(expo[k])));
-					weightedSum += w;
-
-				}
-
-
-				hdrImg.at<cv::Vec3f>(y, x)[idx] = std::exp(result / weightedSum);
-
-			}
-		}
-
-
-	}
-
-	return hdrImg;
-
-}
 
 
 int main() {
@@ -274,6 +178,7 @@ int main() {
 	}
 
 
+	std::cerr << "Linear Least Squares\n";
 	const int lambda = 10;
 	std::array<cv::Mat, 3> gCurves;		// R, G, B
 	for (size_t c = 0; c < Z.size(); ++c) {
@@ -285,17 +190,40 @@ int main() {
 	// test
 	outputCurve(gCurves[0]);
 
-
+	std::cerr << "Compute radiance\n";
 	// radiance ?
-	cv::Mat hdrImg = constructRadiance(imageFiles, gCurves, dwf, expo);
+	//cv::Mat hdrImg = constructRadiance(imageFiles, gCurves, dwf, expo);
+
+	HDRI::HDRImage hdrImage;
+	hdrImage.computeRadiance(imageFiles, gCurves, dwf, expo);
 
 
 	try {
-		cv::imwrite("radiance.hdr", hdrImg);
+		cv::imwrite("radiance.hdr", hdrImage.getRadiance());
 	} catch (std::exception& e) {
 		std::cerr << e.what() << '\n';
 		std::exit(-1);
 	}
+
+
+
+	//tone map
+
+	std::cerr << "tone map\n";
+
+	HDRI::ReinhardAlgo rAlgo;
+
+	hdrImage.setToneMappingAlgorithm(&rAlgo);
+	auto outimage = hdrImage.getToneMappingResult();
+
+
+	try {
+		cv::imwrite("output_image.jpg", outimage);
+	} catch (std::exception& e) {
+		std::cerr << e.what() << '\n';
+		std::exit(-1);
+	}
+
 
 
 	return 0;
