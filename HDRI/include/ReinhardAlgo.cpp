@@ -6,8 +6,8 @@
 
 cv::Mat HDRI::ReinhardAlgo::toneMap(const cv::Mat& inputRadiance) {
 
-	const float epsilon = 0.00001;
-	const float a = 0.18;		// from paper
+	const float epsilon = 0.00001f;
+	const float a = 0.18f;		// from paper
 
 	// color space transform
 	cv::Mat lumi(inputRadiance.size(), CV_32FC1);
@@ -45,7 +45,7 @@ cv::Mat HDRI::ReinhardAlgo::toneMap(const cv::Mat& inputRadiance) {
 	float coeff = a / Lw_bar;
 
 
-	float L_white = 1.7;		// test
+	float L_white = 1.7f;		// test
 
 	// compute Ld
 	cv::Mat Ld(inputRadiance.size(), CV_32FC1);
