@@ -2,6 +2,11 @@
 #define _COMMON_HPP_
 
 #include <cstdint>
+#include <opencv2/core/mat.hpp>
+
+
+#include "rawImage.hpp"
+#include "WeightFunction.hpp"
 
 struct PixelData {
 	std::uint8_t r;
@@ -10,8 +15,8 @@ struct PixelData {
 };
 
 
-
-
+void loadRawImages(const std::string& basePath, const std::string& fileName, std::vector<HDRI::RawImage>& images);
+cv::Mat constructRadiance(const std::vector<HDRI::RawImage>& imageFiles, const std::array<cv::Mat, 3>& gCurves, HDRI::WeightFunction& dwf, const std::vector<double> expo);
 
 
 
