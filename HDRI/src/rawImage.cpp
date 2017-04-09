@@ -8,15 +8,25 @@ namespace HDRI {
 	void RawImage::load(const std::string fileName, double ss) {
 
 		mImageData = cv::imread(fileName);
-		mInvShutterSpeed = ss;
+		expo = 1/ss;
 		mName = fileName;
 
 		if (mImageData.empty()) {
 			std::cerr << "Fail to load: " + fileName << std::endl;
+			throw std::runtime_error("Fail to load" + fileName);
 		} else {
 			std::cerr << "Loaded: " << fileName << std::endl;
 		}
 
+		//// test code
+
+		//cv::Mat shrinkMat;
+		//cv::resize(mImageData, shrinkMat, cv::Size(mImageData.cols, mImageData.rows));
+
+		//// check size
+		//cv::resize(shrinkMat, shrinkMat, cv::Size(20 , 20));
+
+		//mImageData = shrinkMat;
 
 	}
 
@@ -34,6 +44,10 @@ namespace HDRI {
 
 	const cv::Mat & RawImage::getImageData() const {
 		return mImageData;
+	}
+
+	double RawImage::getExposure() const {
+		return expo;
 	}
 
 
