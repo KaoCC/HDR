@@ -38,17 +38,27 @@ In theory, The premake configuration can also generate Makefiles for GCC as well
 
 ## Usage
 
-`./HDR (BaseDirPath) (FileListName)`
+`./HDRI (BaseDirPath) (FileListName)`
 
 For example:
 
-`./HDR ../InputImage/ list.txt`
+`./HDRI ../InputImage/ list.txt`
 
 Note: The default base path is "../InputImage/" and the default name of the file list is "list.txt". You do not have to type it explicitly.
 
 The program will generate the radiance map called "radiance.hdr". Based on the radiance map, the tone algorithm will be triggered to generate the output image. The file name will be "output_image.jpg".
 Moreover, the reconstructed G curve (and ln E) will be written to a file called "out.txt".
 
+
+## Layout
+
+Inputs:
+
+The inputs are all stored in the folder named "\InputImage" with subfolders indexed by numbers.
+
+Outputs:
+
+They are in the "\Result" folder with corresponding indice. Each subfolder contains the output image and the radiance map.
 
 
 
