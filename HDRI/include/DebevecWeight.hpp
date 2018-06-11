@@ -15,7 +15,7 @@ namespace HDRI {
 
 		DebevecWeight();
 		virtual double getWeight(int index) const override;
-		virtual size_t getSize() const override;
+		virtual std::size_t getSize() const override;
 
 	private:
 
