@@ -4,8 +4,8 @@ High-dynamic-range imaging
 
 ## System requirements and Dependencies
 
-
-- [OpenCV 3.2](http://opencv.org/)
+- [CMake 3.6+](https://cmake.org/)
+- [OpenCV 3.2+](http://opencv.org/)
 
 The following compilers are supported:
 
@@ -16,7 +16,7 @@ The following compilers are supported:
 
 ### Windows & Mac OS X & Linux
 
-We have recently changed from premake to [cmake](https://cmake.org/).
+We have recently changed from premake to [CMake](https://cmake.org/).
 Below are instructions of using a GCC-based compiler as an example.
 
 1. Create your build directory `mkdir HDR_build`
