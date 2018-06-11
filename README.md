@@ -54,5 +54,5 @@ They are in the "\Result" folder with corresponding indice. Each subfolder conta
 
 ## Reference
 
-[Recovering High Dynamic Range Radiance Maps from Photographs](http://www.pauldebevec.com/Research/HDR/)
-[Paper Link](https://dl.acm.org/citation.cfm?id=258884)
+- [Recovering High Dynamic Range Radiance Maps from Photographs](http://www.pauldebevec.com/Research/HDR/)
+- [Paper Link](https://dl.acm.org/citation.cfm?id=258884)
