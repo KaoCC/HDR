@@ -3,6 +3,8 @@
 #define _HDRI_WEIGHTFUNCTION_HPP_
 
 
+#include <cstddef>
+
 namespace HDRI {
 
 	class WeightFunction {
@@ -11,7 +13,7 @@ namespace HDRI {
 	public:
 
 		virtual double getWeight(int index) const = 0;
-		virtual size_t getSize() const = 0;
+		virtual std::size_t getSize() const = 0;
 
 	};
 
