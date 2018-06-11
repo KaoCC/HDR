@@ -3,7 +3,7 @@
 
 
 #include "WeightFunction.hpp"
-#include <opencv2\core\mat.hpp>
+#include <opencv2/core/mat.hpp>
 
 #include "rawImage.hpp"
 
