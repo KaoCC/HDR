@@ -18,8 +18,8 @@ namespace HDRI {
 
 		size_t getTotalSize() const;
 
-		size_t getWidth() const;
-		size_t getHeight() const;
+		int getWidth() const;
+		int getHeight() const;
 
 		const cv::Mat& getImageData() const;
 

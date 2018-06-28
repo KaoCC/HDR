@@ -34,11 +34,11 @@ namespace HDRI {
 		return mImageData.total();
 	}
 
-	size_t RawImage::getWidth() const {
+	int RawImage::getWidth() const {
 		return mImageData.size().width;
 	}
 
-	size_t RawImage::getHeight() const {
+	int RawImage::getHeight() const {
 		return mImageData.size().height;
 	}
 
