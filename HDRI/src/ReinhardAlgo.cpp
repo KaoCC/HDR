@@ -71,8 +71,8 @@ cv::Mat HDRI::ReinhardAlgo::toneMap(const cv::Mat& inputRadiance) {
 	cv::Mat outputImage(inputRadiance.size(), CV_8UC3);
 	for (size_t idx = 0; idx < 3; ++idx) {		// rgb
 
-		for (size_t y = 0; y < inputRadiance.size().height; ++y) {
-			for (size_t x = 0; x < inputRadiance.size().width; ++x) {
+		for (auto y = 0; y < inputRadiance.size().height; ++y) {
+			for (auto x = 0; x < inputRadiance.size().width; ++x) {
 
 				outputImage.at<cv::Vec3b>(y, x)[idx] = cv::saturate_cast<uchar>(inputRadiance.at<cv::Vec3f>(y, x)[idx] * (Ld.at<float>(y, x) * 255.0 / lumi.at<float>(y, x)));
 
