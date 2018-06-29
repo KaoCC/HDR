@@ -83,7 +83,7 @@ void loadRawImages(const std::string& basePath, const std::string& fileName, std
 
 }
 
-cv::Mat constructRadiance(const std::vector<HDRI::RawImage>& imageFiles, const std::array<cv::Mat, 3>& gCurves, HDRI::WeightFunction& dwf, const std::vector<double> expo) {
+cv::Mat constructRadiance(const std::vector<HDRI::RawImage>& imageFiles, const std::array<cv::Mat, 3>& gCurves, HDRI::WeightFunction& dwf, const std::vector<double>& expo) {
 
 
 	// Size ?
