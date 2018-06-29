@@ -5,7 +5,7 @@
 
 
 
-void HDRI::LinearLeastSquares::solver(const std::vector<std::vector<int>>& Z, const std::vector<double>& deltaT, const WeightFunction& wf, int lambda, cv::Mat& result) {	// zij , shutter , w, g, lE
+cv::Mat HDRI::LinearLeastSquares::solver(const std::vector<std::vector<int>>& Z, const std::vector<double>& deltaT, const WeightFunction& wf, int lambda) {	// zij , shutter , w, g, lE
 
 
 	//tmp
@@ -58,12 +58,13 @@ void HDRI::LinearLeastSquares::solver(const std::vector<std::vector<int>>& Z, co
 		++k;
 	}
 
-	cv::Mat x(A.rows, 1, CV_64F);
+	//cv::Mat x(A.rows, 1, CV_64F);
+	cv::Mat x;
 	cv::solve(A, b, x, cv::DECOMP_SVD);
 
 	// get g and lE
 
-	result = std::move(x);
+	return x;
 
 	//...
 }

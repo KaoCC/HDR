@@ -21,6 +21,9 @@
 #include <opencv2/opencv.hpp>
 #include <array>
 
+#include <chrono>
+#include <future>
+
 const std::string kDefaultBasePath = "../InputImage/";
 const std::string kDefaultFileList = "list.txt";
 
@@ -166,6 +169,7 @@ int main(int argc, char* argv[]) {
 	}
 
 
+	auto start_time = std::chrono::high_resolution_clock::now();
 
 
 	try {
@@ -197,8 +201,16 @@ int main(int argc, char* argv[]) {
 	std::cerr << "Linear Least Squares\n";
 	const int lambda = 10;
 	std::array<cv::Mat, 3> gCurves;		// R, G, B
+
+	std::array<std::future<cv::Mat>, 3> gFutures;
+
 	for (size_t c = 0; c < Z.size(); ++c) {
-		HDRI::LinearLeastSquares::solver(Z[c], expo, dwf, lambda, gCurves[c]);
+		gFutures[c] = std::async(std::launch::async, HDRI::LinearLeastSquares::solver, Z[c], expo, dwf, lambda);
+		std::cerr << "Async Compute\n";
+	}
+
+	for (auto c = 0; c < Z.size(); ++c) {
+		gCurves[c] = gFutures[c].get();
 	}
 
 	std::cerr << "Done\n";
@@ -240,6 +252,12 @@ int main(int argc, char* argv[]) {
 		std::exit(-1);
 	}
 
+
+	auto end_time = std::chrono::high_resolution_clock::now();
+
+	auto time_span = std::chrono::duration_cast<std::chrono::duration<double>>(end_time - start_time);
+
+	std::cout << "Execution time : " << time_span.count() << "s\n";
 
 
 	return 0;
