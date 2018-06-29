@@ -17,7 +17,7 @@ namespace HDRI {
 
 		HDRImage() = default;
 
-		void computeRadiance(const std::vector<HDRI::RawImage>& imageFiles, const std::array<cv::Mat, 3>& gCurves, HDRI::WeightFunction& dwf, const std::vector<double> expo);
+		void computeRadiance(const std::vector<HDRI::RawImage>& imageFiles, const std::array<cv::Mat, 3>& gCurves, HDRI::WeightFunction& dwf, const std::vector<double>& expo);
 		cv::Mat getRadiance() const;
 
 

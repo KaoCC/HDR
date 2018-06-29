@@ -14,12 +14,12 @@ namespace HDRI {
 	DebevecWeight::DebevecWeight() {
 
 		mTable.resize(N);
-		for (size_t i = 0; i < N; ++i) {
+		for (auto i = 0; i < N; ++i) {
 
 			if (i <= (0.5 * (kZmax + kZmin))) {
-				mTable[i] = i - kZmin;
+				mTable[i] = static_cast<std::uint8_t>(i - kZmin);
 			} else {
-				mTable[i] = kZmax - i;
+				mTable[i] = static_cast<std::uint8_t>(kZmax - i);
 			}
 
 		}

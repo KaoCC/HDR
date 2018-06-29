@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-void HDRI::HDRImage::computeRadiance(const std::vector<HDRI::RawImage>& imageFiles, const std::array<cv::Mat, 3>& gCurves, HDRI::WeightFunction & dwf, const std::vector<double> expo) {
+void HDRI::HDRImage::computeRadiance(const std::vector<HDRI::RawImage>& imageFiles, const std::array<cv::Mat, 3>& gCurves, HDRI::WeightFunction & dwf, const std::vector<double>& expo) {
 
 
 	mRadiance = constructRadiance(imageFiles, gCurves, dwf, expo);
