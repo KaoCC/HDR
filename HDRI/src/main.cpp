@@ -38,8 +38,8 @@ static void getAccurateExposure();
 
 
 static void outputCurve(const cv::Mat& curve) {
-	size_t tmpW = curve.size().width;
-	size_t tmpH = curve.size().height;
+	auto tmpW = curve.size().width;
+	auto tmpH = curve.size().height;
 
 	std::ofstream fout("out.txt");
 
@@ -64,8 +64,8 @@ static std::vector<cv::Mat> shrinkImages(const std::vector<HDRI::RawImage>&in) {
 		//size_t resizeCol = ref.cols / kRatio;
 		//size_t resizeRow = ref.rows / kRatio;
 
-		size_t resizeCol = 15;
-		size_t resizeRow = 15;
+		int resizeCol = 15;
+		int resizeRow = 15;
 
 		if (resizeCol < 15) {
 			resizeCol = 15;
@@ -92,17 +92,17 @@ static std::vector<cv::Mat> shrinkImages(const std::vector<HDRI::RawImage>&in) {
 
 static std::vector<std::vector<PixelData>> generateRawPixelData(const std::vector<cv::Mat>& shrinkMat) {
 
-	size_t width = shrinkMat[0].size().width;
-	size_t height = shrinkMat[0].size().height;
+	auto width = shrinkMat[0].size().width;
+	auto height = shrinkMat[0].size().height;
 
 	std::vector<std::vector<PixelData>> pixelRaw(shrinkMat.size());
 
-	for (size_t idx = 0; idx < shrinkMat.size(); ++idx) {
+	for (auto idx = 0; idx < shrinkMat.size(); ++idx) {
 
 		pixelRaw[idx].resize(width * height);
 
-		for (size_t y = 0; y < height; ++y) {
-			for (size_t x = 0; x < width; ++x) {
+		for (auto y = 0; y < height; ++y) {
+			for (auto x = 0; x < width; ++x) {
 
 				pixelRaw[idx][y * width + x].b = shrinkMat[idx].at<cv::Vec3b>(y, x)[0];
 				pixelRaw[idx][y * width + x].g = shrinkMat[idx].at<cv::Vec3b>(y, x)[1];

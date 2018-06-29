@@ -87,17 +87,17 @@ cv::Mat constructRadiance(const std::vector<HDRI::RawImage>& imageFiles, const s
 
 
 	// Size ?
-	size_t width = imageFiles[0].getWidth();
-	size_t height = imageFiles[0].getHeight();
+	int width = imageFiles[0].getWidth();
+	int height = imageFiles[0].getHeight();
 
 	// radiance ?
 	cv::Mat hdrImg(height, width, CV_32FC3);
 
 
-	for (size_t idx = 0; idx < gCurves.size(); ++idx) {		// r, g, b
+	for (auto idx = 0; idx < gCurves.size(); ++idx) {		// r, g, b
 
-		for (size_t y = 0; y < height; ++y) {
-			for (size_t x = 0; x < width; ++x) {
+		for (auto y = 0; y < height; ++y) {
+			for (auto x = 0; x < width; ++x) {
 
 				double weightedSum = 0.0;
 				double result = 0.0;

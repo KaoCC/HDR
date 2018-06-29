@@ -12,7 +12,7 @@ namespace HDRI {
 	class RawImage {
 
 	public:
-		RawImage()  =default;
+		RawImage() = default;
 
 		void load(const std::string fileName, double ss);
 

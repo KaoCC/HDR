@@ -15,7 +15,7 @@ void HDRI::LinearLeastSquares::solver(const std::vector<std::vector<int>> Z, con
 
 	// Note : Ax = b
 
-	size_t n = wf.getSize();
+	auto n = wf.getSize();
 
 	//std::vector<std::vector<double>> A;
 
@@ -30,8 +30,8 @@ void HDRI::LinearLeastSquares::solver(const std::vector<std::vector<int>> Z, con
 
 	int k = 0;
 
-	for (size_t i = 0; i < Z.size(); ++i) {		// N  (pixel)
-		for (size_t j = 0; j < Z[i].size(); ++j) {		// P  (image)
+	for (auto i = 0; i < Z.size(); ++i) {		// N  (pixel)
+		for (auto j = 0; j < Z[i].size(); ++j) {		// P  (image)
 
 			double w_ij = wf.getWeight(Z[i][j]);  // +1 ??
 			A.at<double>(k, Z[i][j]) = w_ij;
@@ -50,7 +50,7 @@ void HDRI::LinearLeastSquares::solver(const std::vector<std::vector<int>> Z, con
 	// get x !
 
 	// g(z - 1) -2g(z) + g(z + 1)
-	for (size_t i = 0; i < n - 1; ++i) {
+	for (auto i = 0; i < n - 1; ++i) {
 
 		A.at<double>(k, i) = lambda * wf.getWeight(i + 1);
 		A.at<double>(k, i + 1) = -2 * lambda * wf.getWeight(i + 1);
