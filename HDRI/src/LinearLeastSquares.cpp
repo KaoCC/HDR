@@ -23,8 +23,10 @@ void HDRI::LinearLeastSquares::solver(const std::vector<std::vector<int>> Z, con
 	//b.resize(A.size());
 
 
-	cv::Mat A(Z.size() * Z[0].size() + n + 1, n + Z.size(), CV_64F);
-	cv::Mat b(A.size().height, 1, CV_64F);
+
+	cv::Mat A = cv::Mat::zeros(Z.size() * Z[0].size() + n + 1, n + Z.size(), CV_64F);
+	cv::Mat b = cv::Mat::zeros(A.size().height, 1, CV_64F);
+
 
 	int k = 0;
 
