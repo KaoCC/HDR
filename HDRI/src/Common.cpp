@@ -83,21 +83,21 @@ void loadRawImages(const std::string& basePath, const std::string& fileName, std
 
 }
 
-cv::Mat constructRadiance(const std::vector<HDRI::RawImage>& imageFiles, const std::array<cv::Mat, 3>& gCurves, HDRI::WeightFunction& dwf, const std::vector<double> expo) {
+cv::Mat constructRadiance(const std::vector<HDRI::RawImage>& imageFiles, const std::array<cv::Mat, 3>& gCurves, HDRI::WeightFunction& dwf, const std::vector<double>& expo) {
 
 
 	// Size ?
-	size_t width = imageFiles[0].getWidth();
-	size_t height = imageFiles[0].getHeight();
+	int width = imageFiles[0].getWidth();
+	int height = imageFiles[0].getHeight();
 
 	// radiance ?
 	cv::Mat hdrImg(height, width, CV_32FC3);
 
 
-	for (size_t idx = 0; idx < gCurves.size(); ++idx) {		// r, g, b
+	for (auto idx = 0; idx < gCurves.size(); ++idx) {		// r, g, b
 
-		for (size_t y = 0; y < height; ++y) {
-			for (size_t x = 0; x < width; ++x) {
+		for (auto y = 0; y < height; ++y) {
+			for (auto x = 0; x < width; ++x) {
 
 				double weightedSum = 0.0;
 				double result = 0.0;
@@ -114,7 +114,7 @@ cv::Mat constructRadiance(const std::vector<HDRI::RawImage>& imageFiles, const s
 				}
 
 				// Be careful ! 
-				if (weightedSum == 0) {
+				if (weightedSum < std::numeric_limits<double>::epsilon() && weightedSum > -std::numeric_limits<double>::epsilon()) {		// near 0.0
 					hdrImg.at<cv::Vec3f>(y, x)[idx] = 0;
 				} else {
 					hdrImg.at<cv::Vec3f>(y, x)[idx] = std::exp(result / weightedSum);

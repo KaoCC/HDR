@@ -3,7 +3,7 @@
 
 
 #include "WeightFunction.hpp"
-#include <opencv2\core\mat.hpp>
+#include <opencv2/core/mat.hpp>
 
 #include "rawImage.hpp"
 
@@ -18,7 +18,7 @@ namespace HDRI {
 
 		LinearLeastSquares() = delete;
 
-		static void solver(const std::vector<std::vector<int>> Z, const std::vector<double> deltaT,const WeightFunction& wf, int lambda, cv::Mat& result);
+		static cv::Mat solver(const std::vector<std::vector<int>>& Z, const std::vector<double>& deltaT,const WeightFunction& wf, int lambda);
 
 
 	};

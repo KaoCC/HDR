@@ -4,8 +4,8 @@ High-dynamic-range imaging
 
 ## System requirements and Dependencies
 
-
-- [OpenCV 3.2](http://opencv.org/)
+- [CMake 3.6+](https://cmake.org/)
+- [OpenCV 3.2+](http://opencv.org/)
 
 The following compilers are supported:
 
@@ -14,35 +14,26 @@ The following compilers are supported:
 
 ## Build
 
-### Windows
+### Windows & Mac OS X & Linux
 
-- Create Visual Studio 2017 Solution
+We have recently changed from premake to [CMake](https://cmake.org/).
+Below are instructions of using a GCC-based compiler as an example.
 
-`./Tool/premake/win/premake5.exe vs2017`
+1. Create your build directory `mkdir HDR_build`
+2. Run CMake `cmake ..` or `cmake -DCMAKE_BUILD_TYPE=Debug` for debugging
+3. Compile by running `make`
+4. The binary is named hdri.
 
-- After that, open the visual studio solution and build it !
-
-
-### Linux  (Experimental !!!)
-
-In theory, The premake configuration can also generate Makefiles for GCC as well, but I have not tried it yet for this project.
-
-- Create the Makefile
-
-`./Tool/premake/linux64/premake gmake`
-
-- Build it !
-
-`make config=release_x64`
+Note that for Windows platform you may need to copy necessary files such as dlls to the working directory in order to execute the binary properly.
 
 
 ## Usage
 
-`./HDRI (BaseDirPath) (FileListName)`
+`./hdri (BaseDirPath) (FileListName)`
 
 For example:
 
-`./HDRI ../InputImage/ list.txt`
+`./hdri ../InputImage/ list.txt`
 
 Note: The default base path is "../InputImage/" and the default name of the file list is "list.txt". You do not have to type it explicitly.
 
@@ -61,4 +52,7 @@ Outputs:
 They are in the "\Result" folder with corresponding indice. Each subfolder contains the output image and the radiance map.
 
 
+## Reference
 
+- [Recovering High Dynamic Range Radiance Maps from Photographs](http://www.pauldebevec.com/Research/HDR/)
+- [Paper Link](https://dl.acm.org/citation.cfm?id=258884)
