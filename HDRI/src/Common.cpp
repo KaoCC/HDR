@@ -114,7 +114,7 @@ cv::Mat constructRadiance(const std::vector<HDRI::RawImage>& imageFiles, const s
 				}
 
 				// Be careful ! 
-				if (weightedSum == 0) {
+				if (weightedSum < std::numeric_limits<double>::epsilon() && weightedSum > -std::numeric_limits<double>::epsilon()) {		// near 0.0
 					hdrImg.at<cv::Vec3f>(y, x)[idx] = 0;
 				} else {
 					hdrImg.at<cv::Vec3f>(y, x)[idx] = std::exp(result / weightedSum);
