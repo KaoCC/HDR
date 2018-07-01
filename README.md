@@ -9,7 +9,8 @@ High-dynamic-range imaging
 
 The following compilers are supported:
 
-- Visual Studio 2015 or 2017
+- Visual Studio 2015 or 2017 (Windows x64)
+- Apple LLVM version 9.1.0 (Mac x64)
 
 
 ## Build
