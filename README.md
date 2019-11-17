@@ -17,13 +17,16 @@ The following compilers are supported:
 
 ### Windows & Mac OS X & Linux
 
-We have recently changed from premake to [CMake](https://cmake.org/).
+I have recently changed from premake to [CMake](https://cmake.org/).
 Below are instructions of using a GCC-based compiler as an example.
 
-1. Create your build directory `mkdir HDR_build`
-2. Run CMake `cmake ..` or `cmake -DCMAKE_BUILD_TYPE=Debug` for debugging
-3. Compile by running `make`
-4. The binary is named hdri.
+
+1. Create your build directory `mkdir build && cd build`
+2. Run Conan `conan install .. -s cppstd=17 --build missing`
+3. Run CMake `cmake ..` for development or `cmake -DCMAKE_BUILD_TYPE=Release` for a release build
+4. Compile by running `make`
+5. Run test case by `make test`
+6. The binary is named hdri
 
 Note that for Windows platform you may need to copy necessary files such as dlls to the working directory in order to execute the binary properly.
 

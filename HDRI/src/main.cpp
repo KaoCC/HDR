@@ -14,6 +14,7 @@
 
 #include "ReinhardAlgo.hpp"
 
+#include <fstream>
 #include <iostream>
 #include <cstdint>
 

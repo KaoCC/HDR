@@ -2,7 +2,7 @@
 
 cmake_minimum_required(VERSION 3.6)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -30,8 +30,12 @@ endif()
 
 
 
-project(HDR)
+project(HDR LANGUAGES CXX)
 
+set(CMAKE_VERBOSE_MAKEFILE TRUE)
+
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+conan_basic_setup()
 
 
 if(MSVC)
@@ -47,14 +51,12 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR (CMAKE_CXX_COMPILER_ID MATCHES "C
 endif()
 
 
-set(CMAKE_FIND_PACKAGE_SORT_ORDER NATURAL)
-set(CMAKE_FIND_PACKAGE_SORT_DIRECTION DEC)
+# set(CMAKE_FIND_PACKAGE_SORT_ORDER NATURAL)
+# set(CMAKE_FIND_PACKAGE_SORT_DIRECTION DEC)
 
 
-find_package(OpenCV REQUIRED)
-
-
-add_subdirectory(HDRI)
+# find_package(OpenCV REQUIRED)
+# add_subdirectory(HDRI)
 
 
 #debug messages
@@ -64,12 +66,33 @@ message("CMAKE_BINARY_DIR= ${CMAKE_BINARY_DIR}")
 message("CMAKE_INSTALL_PREFIX= ${CMAKE_INSTALL_PREFIX}")
 message("CMAKE_CXX_STANDARD= ${CMAKE_CXX_STANDARD}")
 message("CMAKE_SYSTEM_PREFIX_PATH= ${CMAKE_SYSTEM_PREFIX_PATH}")
-
 message("OpenCV_INCLUDE_DIRS= ${OpenCV_INCLUDE_DIRS}")
-
 message("CMAKE_CXX_FLAGS= ${CMAKE_CXX_FLAGS}")
-
 message("CMAKE_CXX_COMPILER_ID = ${CMAKE_CXX_COMPILER_ID}")
-
 message("CMAKE_GENERATOR= ${CMAKE_GENERATOR}")
+
+
+
+set(BASE_SRC
+
+    HDRI/src/Common.cpp
+    HDRI/src/HDRImage.cpp
+    HDRI/src/LinearLeastSquares.cpp
+    HDRI/src/DebevecWeight.cpp
+    HDRI/src/rawImage.cpp
+    HDRI/src/ReinhardAlgo.cpp
+    HDRI/src/main.cpp
+)
+
+
+add_executable(
+    hdri
+    ${BASE_SRC}
+)
+
+include_directories(${HDRI_DIR}/include)
+# include_directories( ${OpenCV_INCLUDE_DIRS} )
+
+target_link_libraries( hdri ${CONAN_LIBS} )
+target_compile_features(hdri PUBLIC cxx_std_17)
 
