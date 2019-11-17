@@ -3,49 +3,34 @@
 
 #include <opencv2/core/mat.hpp>
 
-#include "ToneMapAlgo.hpp"
-#include "rawImage.hpp"
-#include "WeightFunction.hpp"
 #include "Common.hpp"
+#include "ToneMapAlgo.hpp"
+#include "WeightFunction.hpp"
+#include "rawImage.hpp"
 
 namespace HDRI {
 
+class HDRImage {
 
-	class HDRImage {
+  public:
+    HDRImage() = default;
 
-	public:
+    void computeRadiance(const std::vector<HDRI::RawImage> &imageFiles,
+                         const std::array<cv::Mat, 3> &gCurves,
+                         HDRI::WeightFunction &dwf,
+                         const std::vector<double> &expo);
+    cv::Mat getRadiance() const;
 
-		HDRImage() = default;
+    void setToneMappingAlgorithm(ToneMapAlgo *algo);
 
-		void computeRadiance(const std::vector<HDRI::RawImage>& imageFiles, const std::array<cv::Mat, 3>& gCurves, HDRI::WeightFunction& dwf, const std::vector<double>& expo);
-		cv::Mat getRadiance() const;
+    cv::Mat getToneMappingResult() const;
 
+  private:
+    cv::Mat mRadiance;
 
-		void setToneMappingAlgorithm(ToneMapAlgo* algo);
+    ToneMapAlgo *mAlgoSelect = nullptr;
+};
 
-		cv::Mat getToneMappingResult() const;
-
-	private:
-
-		cv::Mat mRadiance;
-		
-
-		ToneMapAlgo* mAlgoSelect = nullptr;
-
-
-	};
-
-
-
-}
-
-
-
-
-
-
-
-
-
+} // namespace HDRI
 
 #endif

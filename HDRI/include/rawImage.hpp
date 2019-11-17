@@ -3,44 +3,30 @@
 
 #include <opencv2/photo.hpp>
 
-
 namespace HDRI {
 
+class RawImage {
 
+  public:
+    RawImage() = default;
 
+    void load(const std::string fileName, double ss);
 
-	class RawImage {
+    size_t getTotalSize() const;
 
-	public:
-		RawImage() = default;
+    int getWidth() const;
+    int getHeight() const;
 
-		void load(const std::string fileName, double ss);
+    const cv::Mat &getImageData() const;
 
-		size_t getTotalSize() const;
+    double getExposure() const;
 
-		int getWidth() const;
-		int getHeight() const;
+  private:
+    cv::Mat mImageData;
+    std::string mName;
+    double expo;
+};
 
-		const cv::Mat& getImageData() const;
-
-		double getExposure() const;
-
-	private:
-
-		
-		cv::Mat mImageData;
-		std::string mName;
-		double expo;
-
-	};
-
-
-
-}
-
-
-
-
-
+} // namespace HDRI
 
 #endif

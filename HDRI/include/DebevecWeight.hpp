@@ -8,33 +8,21 @@
 
 namespace HDRI {
 
-	class DebevecWeight : public WeightFunction {
+class DebevecWeight : public WeightFunction {
 
+  public:
+    DebevecWeight();
+    virtual double getWeight(int index) const override;
+    virtual std::size_t getSize() const override;
 
-	public:
+  private:
+    static const int kZmin;
+    static const int kZmax;
+    static const int N;
 
-		DebevecWeight();
-		virtual double getWeight(int index) const override;
-		virtual std::size_t getSize() const override;
+    std::vector<std::uint8_t> mTable;
+};
 
-	private:
-
-		
-		static const int kZmin;
-		static const int kZmax;
-		static const int N;
-
-		std::vector<std::uint8_t> mTable;
-
-	};
-
-}
-
-
-
-
-
-
+} // namespace HDRI
 
 #endif
-

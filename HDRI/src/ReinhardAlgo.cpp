@@ -4,87 +4,83 @@
 
 #include <iostream>
 
-cv::Mat HDRI::ReinhardAlgo::toneMap(const cv::Mat& inputRadiance) {
+cv::Mat HDRI::ReinhardAlgo::toneMap(const cv::Mat &inputRadiance) {
 
-	const float epsilon = 0.00001f;
-	const float a = 0.18f;		// from paper
+    const float epsilon = 0.00001f;
+    const float a = 0.18f; // from paper
 
-	// color space transform
-	cv::Mat lumi(inputRadiance.size(), CV_32FC1);
-	for (auto y = 0; y < inputRadiance.size().height; ++y) {
-		for (auto x = 0; x < inputRadiance.size().width; ++x) {
+    // color space transform
+    cv::Mat lumi(inputRadiance.size(), CV_32FC1);
+    for (auto y = 0; y < inputRadiance.size().height; ++y) {
+        for (auto x = 0; x < inputRadiance.size().width; ++x) {
 
-			// L = 0.2126 * R + 0.7152 * G + 0.0722 * B;
-			//lumi.at<double>(y, x) = 0.2126 * inputRadiance.at<cv::Vec3f>(y, x)[2] + 0.7152 * inputRadiance.at<cv::Vec3f>(y, x)[1] + 0.0722 * inputRadiance.at<cv::Vec3f>(y, x)[0];
-			lumi.at<float>(y, x) = convertRGB(inputRadiance.at<cv::Vec3f>(y, x)[2], inputRadiance.at<cv::Vec3f>(y, x)[1], inputRadiance.at<cv::Vec3f>(y, x)[0]);
+            // L = 0.2126 * R + 0.7152 * G + 0.0722 * B;
+            // lumi.at<double>(y, x) = 0.2126 * inputRadiance.at<cv::Vec3f>(y,
+            // x)[2] + 0.7152 * inputRadiance.at<cv::Vec3f>(y, x)[1] + 0.0722 *
+            // inputRadiance.at<cv::Vec3f>(y, x)[0];
+            lumi.at<float>(y, x) =
+                convertRGB(inputRadiance.at<cv::Vec3f>(y, x)[2],
+                           inputRadiance.at<cv::Vec3f>(y, x)[1],
+                           inputRadiance.at<cv::Vec3f>(y, x)[0]);
+        }
+    }
 
-		}
-	}
+    double Lw_bar = 0.0;
 
+    // loop over all values in the Mat
+    for (auto y = 0; y < inputRadiance.size().height; ++y) {
 
-	double Lw_bar = 0.0;
+        for (auto x = 0; x < inputRadiance.size().width; ++x) {
 
-	// loop over all values in the Mat
-	for (auto y = 0; y < inputRadiance.size().height; ++y) {
+            Lw_bar += std::log(lumi.at<float>(y, x) + epsilon); // from paper
+        }
+    }
 
-		for (auto x = 0; x < inputRadiance.size().width; ++x) {
+    std::cerr << "Lw_bar: " << Lw_bar << std::endl;
 
-			Lw_bar += std::log(lumi.at<float>(y, x) + epsilon);		// from paper
+    const size_t N = inputRadiance.total();
 
-		}
+    // Equation 1 in the paper is wrong. The division by N should be placed
+    // before the summation, not outside the exponentiation.
+    Lw_bar = std::exp(Lw_bar / N);
 
-	}
+    float coeff = a / Lw_bar;
 
-	std::cerr << "Lw_bar: " << Lw_bar << std::endl;
+    float L_white = 1.7f; // test
 
-	const size_t N = inputRadiance.total();
+    // compute Ld
+    cv::Mat Ld(inputRadiance.size(), CV_32FC1);
 
-	// Equation 1 in the paper is wrong. The division by N should be placed before the summation, not outside the exponentiation.
-	Lw_bar = std::exp(Lw_bar / N);
+    for (auto y = 0; y < inputRadiance.size().height; ++y) {
+        for (auto x = 0; x < inputRadiance.size().width; ++x) {
 
-	float coeff = a / Lw_bar;
+            float L =
+                coeff * lumi.at<float>(y, x); // Ld = (a / Lw_bar ) * (Lw(x,y))
+            Ld.at<float>(y, x) =
+                L * (1.0f + L / (L_white * L_white)) / (1.0f + L);
 
+            // Ld.at<float>(y, x) = L;
 
-	float L_white = 1.7f;		// test
+            if (L > L_white) {
+                Ld.at<float>(y, x) = 1;
+            }
+        }
+    }
 
-	// compute Ld
-	cv::Mat Ld(inputRadiance.size(), CV_32FC1);
+    cv::Mat outputImage(inputRadiance.size(), CV_8UC3);
+    for (size_t idx = 0; idx < 3; ++idx) { // rgb
 
-	for (auto y = 0; y < inputRadiance.size().height; ++y) {
-		for (auto x = 0; x < inputRadiance.size().width; ++x) {
+        for (auto y = 0; y < inputRadiance.size().height; ++y) {
+            for (auto x = 0; x < inputRadiance.size().width; ++x) {
 
-			float L = coeff * lumi.at<float>(y, x);		// Ld = (a / Lw_bar ) * (Lw(x,y))
-			Ld.at<float>(y, x) = L * (1.0f + L / (L_white * L_white)) / (1.0f + L);
+                outputImage.at<cv::Vec3b>(y, x)[idx] = cv::saturate_cast<uchar>(
+                    inputRadiance.at<cv::Vec3f>(y, x)[idx] *
+                    (Ld.at<float>(y, x) * 255.0 / lumi.at<float>(y, x)));
 
-			//Ld.at<float>(y, x) = L;
+                // std::cerr << "out: " << Ld.at<float>(y, x) << std::endl;
+            }
+        }
+    }
 
-			if (L > L_white) {
-				Ld.at<float>(y, x) = 1;
-			}
-
-		}
-	}
-
-
-
-
-	cv::Mat outputImage(inputRadiance.size(), CV_8UC3);
-	for (size_t idx = 0; idx < 3; ++idx) {		// rgb
-
-		for (auto y = 0; y < inputRadiance.size().height; ++y) {
-			for (auto x = 0; x < inputRadiance.size().width; ++x) {
-
-				outputImage.at<cv::Vec3b>(y, x)[idx] = cv::saturate_cast<uchar>(inputRadiance.at<cv::Vec3f>(y, x)[idx] * (Ld.at<float>(y, x) * 255.0 / lumi.at<float>(y, x)));
-
-
-				//std::cerr << "out: " << Ld.at<float>(y, x) << std::endl;
-			}
-		}
-
-	}
-
-	return outputImage;
-
+    return outputImage;
 }
-
-

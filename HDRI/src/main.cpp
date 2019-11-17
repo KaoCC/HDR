@@ -1,26 +1,24 @@
 
 
-
 #include <vector>
-
 
 #include "rawImage.hpp"
 
-#include "DebevecWeight.hpp"
 #include "Common.hpp"
+#include "DebevecWeight.hpp"
 
-#include "LinearLeastSquares.hpp"
 #include "HDRImage.hpp"
+#include "LinearLeastSquares.hpp"
 
 #include "ReinhardAlgo.hpp"
 
+#include <cstdint>
 #include <fstream>
 #include <iostream>
-#include <cstdint>
 
+#include <array>
 #include <opencv2/core/mat.hpp>
 #include <opencv2/opencv.hpp>
-#include <array>
 
 #include <chrono>
 #include <future>
@@ -28,241 +26,221 @@
 const std::string kDefaultBasePath = "../InputImage/";
 const std::string kDefaultFileList = "list.txt";
 
-
-
 // (1/shutter_speed)
 // Note: factor of two
-static const double defaultShutterSpeed[] = { 1 / 32, 1 / 16, 1 / 8, 1 / 4, 1 / 2, 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024 };
-
-
-
+static const double defaultShutterSpeed[] = {
+    1 / 32, 1 / 16, 1 / 8, 1 / 4, 1 / 2, 1,   2,   4,
+    8,      16,     32,    64,    128,   256, 512, 1024};
 
 // tmp
 static void getAccurateExposure();
 
+static void outputCurve(const cv::Mat &curve) {
+    auto tmpW = curve.size().width;
+    auto tmpH = curve.size().height;
 
-static void outputCurve(const cv::Mat& curve) {
-	auto tmpW = curve.size().width;
-	auto tmpH = curve.size().height;
+    std::ofstream fout("out.txt");
 
-	std::ofstream fout("out.txt");
-
-	for (int q = 0; q < tmpH; ++q) {
-		for (int p = 0; p < tmpW; ++p) {
-			fout << curve.at<double>(q, p) << std::endl;
-		}
-	}
+    for (int q = 0; q < tmpH; ++q) {
+        for (int p = 0; p < tmpW; ++p) {
+            fout << curve.at<double>(q, p) << std::endl;
+        }
+    }
 }
 
+static std::vector<cv::Mat>
+shrinkImages(const std::vector<HDRI::RawImage> &in) {
 
-static std::vector<cv::Mat> shrinkImages(const std::vector<HDRI::RawImage>&in) {
+    std::vector<cv::Mat> out;
 
-	std::vector<cv::Mat> out;
+    const size_t kRatio = 100;
 
-	const size_t kRatio = 100;
+    for (const auto &img : in) {
 
-	for (const auto& img : in) {
+        const auto &ref = img.getImageData();
 
-		const auto& ref = img.getImageData();
+        // size_t resizeCol = ref.cols / kRatio;
+        // size_t resizeRow = ref.rows / kRatio;
 
-		//size_t resizeCol = ref.cols / kRatio;
-		//size_t resizeRow = ref.rows / kRatio;
+        int resizeCol = 15;
+        int resizeRow = 15;
 
-		int resizeCol = 15;
-		int resizeRow = 15;
+        if (resizeCol < 15) {
+            resizeCol = 15;
+        }
 
-		if (resizeCol < 15) {
-			resizeCol = 15;
-		}
+        if (resizeRow < 15) {
+            resizeRow = 15;
+        }
 
-		if (resizeRow < 15) {
-			resizeRow = 15;
-		}
+        std::cerr << "sample Size:" << resizeCol << " " << resizeRow << '\n';
 
-		std::cerr << "sample Size:" << resizeCol << " " << resizeRow << '\n';
+        cv::Mat shrinkMat;
+        cv::resize(ref, shrinkMat, cv::Size(ref.cols, ref.rows));
+        cv::resize(shrinkMat, shrinkMat, cv::Size(resizeCol, resizeRow));
 
-		cv::Mat shrinkMat;
-		cv::resize(ref, shrinkMat, cv::Size(ref.cols, ref.rows));
-		cv::resize(shrinkMat, shrinkMat, cv::Size(resizeCol, resizeRow));
+        out.push_back(shrinkMat);
+    }
 
-		out.push_back(shrinkMat);
-	}
-
-
-	return out;
-
+    return out;
 }
 
+static std::vector<std::vector<PixelData>>
+generateRawPixelData(const std::vector<cv::Mat> &shrinkMat) {
 
-static std::vector<std::vector<PixelData>> generateRawPixelData(const std::vector<cv::Mat>& shrinkMat) {
+    auto width = shrinkMat[0].size().width;
+    auto height = shrinkMat[0].size().height;
 
-	auto width = shrinkMat[0].size().width;
-	auto height = shrinkMat[0].size().height;
+    std::vector<std::vector<PixelData>> pixelRaw(shrinkMat.size());
 
-	std::vector<std::vector<PixelData>> pixelRaw(shrinkMat.size());
+    for (auto idx = 0; idx < shrinkMat.size(); ++idx) {
 
-	for (auto idx = 0; idx < shrinkMat.size(); ++idx) {
+        pixelRaw[idx].resize(width * height);
 
-		pixelRaw[idx].resize(width * height);
+        for (auto y = 0; y < height; ++y) {
+            for (auto x = 0; x < width; ++x) {
 
-		for (auto y = 0; y < height; ++y) {
-			for (auto x = 0; x < width; ++x) {
+                pixelRaw[idx][y * width + x].b =
+                    shrinkMat[idx].at<cv::Vec3b>(y, x)[0];
+                pixelRaw[idx][y * width + x].g =
+                    shrinkMat[idx].at<cv::Vec3b>(y, x)[1];
+                pixelRaw[idx][y * width + x].r =
+                    shrinkMat[idx].at<cv::Vec3b>(y, x)[2];
+            }
+        }
+    }
 
-				pixelRaw[idx][y * width + x].b = shrinkMat[idx].at<cv::Vec3b>(y, x)[0];
-				pixelRaw[idx][y * width + x].g = shrinkMat[idx].at<cv::Vec3b>(y, x)[1];
-				pixelRaw[idx][y * width + x].r = shrinkMat[idx].at<cv::Vec3b>(y, x)[2];
-			}
-		}
-
-	}
-
-	return pixelRaw;
+    return pixelRaw;
 }
 
+static std::array<std::vector<std::vector<int>>, 3>
+convertToZ(const std::vector<std::vector<PixelData>> &pixelRaw,
+           const size_t imageSize, const size_t numOfImage) {
 
-static std::array<std::vector<std::vector<int>>, 3> convertToZ(const std::vector<std::vector<PixelData>>& pixelRaw, const size_t imageSize, const size_t numOfImage) {
+    std::array<std::vector<std::vector<int>>, 3> Z; // r, g, b
 
-	std::array<std::vector<std::vector<int>>, 3> Z;		// r, g, b
+    for (auto &zColors : Z) {
+        zColors.resize(imageSize);
+    }
 
+    for (size_t i = 0; i < imageSize; ++i) { // image pixel
 
-	for (auto& zColors : Z) {
-		zColors.resize(imageSize);
-	}
+        Z[0][i].resize(numOfImage);
+        Z[1][i].resize(numOfImage);
+        Z[2][i].resize(numOfImage);
 
+        for (size_t j = 0; j < numOfImage; ++j) { // num of iamge
+            Z[0][i][j] = pixelRaw[j][i].b;
+            Z[1][i][j] = pixelRaw[j][i].g;
+            Z[2][i][j] = pixelRaw[j][i].r;
+        }
+    }
 
-	for (size_t i = 0; i < imageSize; ++i) {			// image pixel
-
-		Z[0][i].resize(numOfImage);
-		Z[1][i].resize(numOfImage);
-		Z[2][i].resize(numOfImage);
-
-		for (size_t j = 0; j < numOfImage; ++j) {		// num of iamge
-			Z[0][i][j] = pixelRaw[j][i].b;
-			Z[1][i][j] = pixelRaw[j][i].g;
-			Z[2][i][j] = pixelRaw[j][i].r;
-		}
-
-	}
-
-	return Z;
-
-
+    return Z;
 }
 
+int main(int argc, char *argv[]) {
 
+    std::vector<HDRI::RawImage> imageFiles;
 
-int main(int argc, char* argv[]) {
+    std::string basePath;
+    if (argc > 1) {
+        basePath = argv[1];
+    } else {
+        basePath = kDefaultBasePath;
+    }
 
-	std::vector<HDRI::RawImage> imageFiles;
+    std::string fileList;
+    if (argc > 2) {
+        fileList = argv[2];
+    } else {
+        fileList = kDefaultFileList;
+    }
 
-	std::string basePath;
-	if (argc > 1) {
-		basePath = argv[1];
-	} else {
-		basePath = kDefaultBasePath;
-	}
+    auto start_time = std::chrono::high_resolution_clock::now();
 
-	std::string fileList;
-	if (argc > 2) {
-		fileList = argv[2];
-	} else {
-		fileList = kDefaultFileList;
-	}
+    try {
+        loadRawImages(basePath, fileList, imageFiles);
+    } catch (std::exception &e) {
+        std::cerr << e.what() << '\n';
+        std::exit(-1);
+    }
 
+    HDRI::DebevecWeight dwf;
 
-	auto start_time = std::chrono::high_resolution_clock::now();
+    auto shrinkMat = shrinkImages(imageFiles);
+    std::vector<std::vector<PixelData>> pixelRaw =
+        generateRawPixelData(shrinkMat);
 
+    std::cerr << "Convert\n";
 
-	try {
-		loadRawImages(basePath, fileList, imageFiles);
-	} catch (std::exception& e) {
-		std::cerr << e.what() << '\n';
-		std::exit(-1);
-	}
+    // convert
+    auto Z = convertToZ(pixelRaw, shrinkMat[0].total(), shrinkMat.size());
 
+    // set exp
+    std::vector<double> expo;
+    for (const auto &img : imageFiles) {
+        expo.push_back(img.getExposure());
+    }
 
-	HDRI::DebevecWeight dwf;
+    std::cerr << "Linear Least Squares\n";
+    const int lambda = 10;
+    std::array<cv::Mat, 3> gCurves; // R, G, B
 
+    std::array<std::future<cv::Mat>, 3> gFutures;
 
-	auto shrinkMat = shrinkImages(imageFiles);
-	std::vector<std::vector<PixelData>> pixelRaw = generateRawPixelData(shrinkMat);
+    for (size_t c = 0; c < Z.size(); ++c) {
+        gFutures[c] =
+            std::async(std::launch::async, HDRI::LinearLeastSquares::solver,
+                       Z[c], expo, dwf, lambda);
+        std::cerr << "Async Compute\n";
+    }
 
-	std::cerr << "Convert\n";
+    for (auto c = 0; c < Z.size(); ++c) {
+        gCurves[c] = gFutures[c].get();
+    }
 
-	// convert
-	auto Z = convertToZ(pixelRaw, shrinkMat[0].total(), shrinkMat.size());
+    std::cerr << "Done\n";
 
-	// set exp
-	std::vector<double> expo;
-	for (const auto& img : imageFiles) {
-		expo.push_back(img.getExposure());
-	}
+    // test
+    outputCurve(gCurves[0]);
 
+    std::cerr << "Compute radiance\n";
+    // radiance ?
+    // cv::Mat hdrImg = constructRadiance(imageFiles, gCurves, dwf, expo);
 
-	std::cerr << "Linear Least Squares\n";
-	const int lambda = 10;
-	std::array<cv::Mat, 3> gCurves;		// R, G, B
+    HDRI::HDRImage hdrImage;
+    hdrImage.computeRadiance(imageFiles, gCurves, dwf, expo);
 
-	std::array<std::future<cv::Mat>, 3> gFutures;
+    try {
+        cv::imwrite("radiance.hdr", hdrImage.getRadiance());
+    } catch (std::exception &e) {
+        std::cerr << e.what() << '\n';
+        std::exit(-1);
+    }
 
-	for (size_t c = 0; c < Z.size(); ++c) {
-		gFutures[c] = std::async(std::launch::async, HDRI::LinearLeastSquares::solver, Z[c], expo, dwf, lambda);
-		std::cerr << "Async Compute\n";
-	}
+    // tone map
 
-	for (auto c = 0; c < Z.size(); ++c) {
-		gCurves[c] = gFutures[c].get();
-	}
+    std::cerr << "tone map\n";
 
-	std::cerr << "Done\n";
+    HDRI::ReinhardAlgo rAlgo;
 
-	// test
-	outputCurve(gCurves[0]);
+    hdrImage.setToneMappingAlgorithm(&rAlgo);
+    auto outimage = hdrImage.getToneMappingResult();
 
-	std::cerr << "Compute radiance\n";
-	// radiance ?
-	//cv::Mat hdrImg = constructRadiance(imageFiles, gCurves, dwf, expo);
+    try {
+        cv::imwrite("output_image.jpg", outimage);
+    } catch (std::exception &e) {
+        std::cerr << e.what() << '\n';
+        std::exit(-1);
+    }
 
-	HDRI::HDRImage hdrImage;
-	hdrImage.computeRadiance(imageFiles, gCurves, dwf, expo);
+    auto end_time = std::chrono::high_resolution_clock::now();
 
+    auto time_span = std::chrono::duration_cast<std::chrono::duration<double>>(
+        end_time - start_time);
 
-	try {
-		cv::imwrite("radiance.hdr", hdrImage.getRadiance());
-	} catch (std::exception& e) {
-		std::cerr << e.what() << '\n';
-		std::exit(-1);
-	}
+    std::cout << "Execution time : " << time_span.count() << "s\n";
 
-
-
-	//tone map
-
-	std::cerr << "tone map\n";
-
-	HDRI::ReinhardAlgo rAlgo;
-
-	hdrImage.setToneMappingAlgorithm(&rAlgo);
-	auto outimage = hdrImage.getToneMappingResult();
-
-
-	try {
-		cv::imwrite("output_image.jpg", outimage);
-	} catch (std::exception& e) {
-		std::cerr << e.what() << '\n';
-		std::exit(-1);
-	}
-
-
-	auto end_time = std::chrono::high_resolution_clock::now();
-
-	auto time_span = std::chrono::duration_cast<std::chrono::duration<double>>(end_time - start_time);
-
-	std::cout << "Execution time : " << time_span.count() << "s\n";
-
-
-	return 0;
+    return 0;
 }
-
-
-

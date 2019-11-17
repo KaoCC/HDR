@@ -5,39 +5,12 @@
 
 namespace HDRI {
 
+class ToneMapAlgo {
 
-	class ToneMapAlgo {
+  public:
+    virtual cv::Mat toneMap(const cv::Mat &inputRadiance) = 0;
+};
 
-
-	public:
-
-		virtual cv::Mat toneMap(const cv::Mat& inputRadiance) = 0;
-
-
-
-	};
-
-
-
-
-
-
-
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+} // namespace HDRI
 
 #endif
-

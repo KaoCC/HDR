@@ -3,69 +3,63 @@
 
 #include "LinearLeastSquares.hpp"
 
+cv::Mat HDRI::LinearLeastSquares::solver(
+    const std::vector<std::vector<int>> &Z, const std::vector<double> &deltaT,
+    const WeightFunction &wf, int lambda) { // zij , shutter , w, g, lE
 
+    // tmp
+    // int lambda = 1;
 
-cv::Mat HDRI::LinearLeastSquares::solver(const std::vector<std::vector<int>>& Z, const std::vector<double>& deltaT, const WeightFunction& wf, int lambda) {	// zij , shutter , w, g, lE
+    // From the paper.
 
+    // Note : Ax = b
 
-	//tmp
-	//int lambda = 1;
+    auto n = wf.getSize();
 
-	// From the paper.
+    // std::vector<std::vector<double>> A;
 
-	// Note : Ax = b
+    // std::vector<double> b;
+    // b.resize(A.size());
 
-	auto n = wf.getSize();
+    cv::Mat A =
+        cv::Mat::zeros(Z.size() * Z[0].size() + n + 1, n + Z.size(), CV_64F);
+    cv::Mat b = cv::Mat::zeros(A.size().height, 1, CV_64F);
 
-	//std::vector<std::vector<double>> A;
+    int k = 0;
 
-	//std::vector<double> b;
-	//b.resize(A.size());
+    for (auto i = 0; i < Z.size(); ++i) {        // N  (pixel)
+        for (auto j = 0; j < Z[i].size(); ++j) { // P  (image)
 
+            double w_ij = wf.getWeight(Z[i][j]); // +1 ??
+            A.at<double>(k, Z[i][j]) = w_ij;
+            A.at<double>(k, n + i) = -w_ij;
+            b.at<double>(k, 0) = w_ij * std::log(deltaT[j]);
 
+            ++k;
+        }
+    }
 
-	cv::Mat A = cv::Mat::zeros(Z.size() * Z[0].size() + n + 1, n + Z.size(), CV_64F);
-	cv::Mat b = cv::Mat::zeros(A.size().height, 1, CV_64F);
+    A.at<double>(k, 128) = 1; // set the middle to Zero
+    ++k;
 
+    // get x !
 
-	int k = 0;
+    // g(z - 1) -2g(z) + g(z + 1)
+    for (auto i = 0; i < n - 1; ++i) {
 
-	for (auto i = 0; i < Z.size(); ++i) {		// N  (pixel)
-		for (auto j = 0; j < Z[i].size(); ++j) {		// P  (image)
+        A.at<double>(k, i) = lambda * wf.getWeight(i + 1);
+        A.at<double>(k, i + 1) = -2 * lambda * wf.getWeight(i + 1);
+        A.at<double>(k, i + 2) = lambda * wf.getWeight(i + 1);
+        ++k;
+    }
 
-			double w_ij = wf.getWeight(Z[i][j]);  // +1 ??
-			A.at<double>(k, Z[i][j]) = w_ij;
-			A.at<double>(k, n + i) = -w_ij;
-			b.at<double>(k, 0) = w_ij * std::log(deltaT[j]);
+    // cv::Mat x(A.rows, 1, CV_64F);
+    cv::Mat x;
+    cv::solve(A, b, x, cv::DECOMP_SVD);
 
-			++k;
-		}
+    // get g and lE
 
-	}
+    return x;
 
-	A.at<double>(k, 128) = 1;		// set the middle to Zero 
-	++k;
-
-
-	// get x !
-
-	// g(z - 1) -2g(z) + g(z + 1)
-	for (auto i = 0; i < n - 1; ++i) {
-
-		A.at<double>(k, i) = lambda * wf.getWeight(i + 1);
-		A.at<double>(k, i + 1) = -2 * lambda * wf.getWeight(i + 1);
-		A.at<double>(k, i + 2) = lambda * wf.getWeight(i + 1);
-		++k;
-	}
-
-	//cv::Mat x(A.rows, 1, CV_64F);
-	cv::Mat x;
-	cv::solve(A, b, x, cv::DECOMP_SVD);
-
-	// get g and lE
-
-	return x;
-
-	//...
+    //...
 }
-
