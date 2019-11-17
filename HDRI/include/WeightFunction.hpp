@@ -11,6 +11,7 @@ class WeightFunction {
   public:
     virtual double getWeight(int index) const = 0;
     virtual std::size_t getSize() const = 0;
+    virtual ~WeightFunction() = default;
 };
 
 } // namespace HDRI
