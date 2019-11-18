@@ -3,9 +3,8 @@
 
 #include "LinearLeastSquares.hpp"
 
-cv::Mat HDRI::LinearLeastSquares::solver(
-    const std::vector<std::vector<int>> &Z, const std::vector<double> &deltaT,
-    const WeightFunction &wf, int lambda) { // zij , shutter , w, g, lE
+cv::Mat HDRI::LinearLeastSquares::solver(const std::vector<std::vector<int>> &Z, const std::vector<double> &deltaT,
+                                         const WeightFunction &wf, int lambda) { // zij , shutter , w, g, lE
 
     // tmp
     // int lambda = 1;
@@ -21,8 +20,7 @@ cv::Mat HDRI::LinearLeastSquares::solver(
     // std::vector<double> b;
     // b.resize(A.size());
 
-    cv::Mat A =
-        cv::Mat::zeros(Z.size() * Z[0].size() + n + 1, n + Z.size(), CV_64F);
+    cv::Mat A = cv::Mat::zeros(Z.size() * Z[0].size() + n + 1, n + Z.size(), CV_64F);
     cv::Mat b = cv::Mat::zeros(A.size().height, 1, CV_64F);
 
     int k = 0;

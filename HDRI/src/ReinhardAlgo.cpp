@@ -19,8 +19,7 @@ cv::Mat HDRI::ReinhardAlgo::toneMap(const cv::Mat &inputRadiance) {
             // x)[2] + 0.7152 * inputRadiance.at<cv::Vec3f>(y, x)[1] + 0.0722 *
             // inputRadiance.at<cv::Vec3f>(y, x)[0];
             lumi.at<float>(y, x) =
-                convertRGB(inputRadiance.at<cv::Vec3f>(y, x)[2],
-                           inputRadiance.at<cv::Vec3f>(y, x)[1],
+                convertRGB(inputRadiance.at<cv::Vec3f>(y, x)[2], inputRadiance.at<cv::Vec3f>(y, x)[1],
                            inputRadiance.at<cv::Vec3f>(y, x)[0]);
         }
     }
@@ -54,10 +53,8 @@ cv::Mat HDRI::ReinhardAlgo::toneMap(const cv::Mat &inputRadiance) {
     for (auto y = 0; y < inputRadiance.size().height; ++y) {
         for (auto x = 0; x < inputRadiance.size().width; ++x) {
 
-            float L =
-                coeff * lumi.at<float>(y, x); // Ld = (a / Lw_bar ) * (Lw(x,y))
-            Ld.at<float>(y, x) =
-                L * (1.0f + L / (L_white * L_white)) / (1.0f + L);
+            float L = coeff * lumi.at<float>(y, x); // Ld = (a / Lw_bar ) * (Lw(x,y))
+            Ld.at<float>(y, x) = L * (1.0f + L / (L_white * L_white)) / (1.0f + L);
 
             // Ld.at<float>(y, x) = L;
 
@@ -74,8 +71,7 @@ cv::Mat HDRI::ReinhardAlgo::toneMap(const cv::Mat &inputRadiance) {
             for (auto x = 0; x < inputRadiance.size().width; ++x) {
 
                 outputImage.at<cv::Vec3b>(y, x)[idx] = cv::saturate_cast<uchar>(
-                    inputRadiance.at<cv::Vec3f>(y, x)[idx] *
-                    (Ld.at<float>(y, x) * 255.0 / lumi.at<float>(y, x)));
+                    inputRadiance.at<cv::Vec3f>(y, x)[idx] * (Ld.at<float>(y, x) * 255.0 / lumi.at<float>(y, x)));
 
                 // std::cerr << "out: " << Ld.at<float>(y, x) << std::endl;
             }

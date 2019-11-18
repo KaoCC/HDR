@@ -15,8 +15,7 @@ class LinearLeastSquares {
   public:
     LinearLeastSquares() = delete;
 
-    static cv::Mat solver(const std::vector<std::vector<int>> &Z,
-                          const std::vector<double> &deltaT,
+    static cv::Mat solver(const std::vector<std::vector<int>> &Z, const std::vector<double> &deltaT,
                           const WeightFunction &wf, int lambda);
 };
 

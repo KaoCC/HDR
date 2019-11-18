@@ -28,9 +28,8 @@ const std::string kDefaultFileList = "list.txt";
 
 // (1/shutter_speed)
 // Note: factor of two
-static const double defaultShutterSpeed[] = {
-    1 / 32, 1 / 16, 1 / 8, 1 / 4, 1 / 2, 1,   2,   4,
-    8,      16,     32,    64,    128,   256, 512, 1024};
+static const double defaultShutterSpeed[] = {1 / 32, 1 / 16, 1 / 8, 1 / 4, 1 / 2, 1,   2,   4,
+                                             8,      16,     32,    64,    128,   256, 512, 1024};
 
 // tmp
 static void getAccurateExposure();
@@ -48,8 +47,7 @@ static void outputCurve(const cv::Mat &curve) {
     }
 }
 
-static std::vector<cv::Mat>
-shrinkImages(const std::vector<HDRI::RawImage> &in) {
+static std::vector<cv::Mat> shrinkImages(const std::vector<HDRI::RawImage> &in) {
 
     std::vector<cv::Mat> out;
 
@@ -85,8 +83,7 @@ shrinkImages(const std::vector<HDRI::RawImage> &in) {
     return out;
 }
 
-static std::vector<std::vector<PixelData>>
-generateRawPixelData(const std::vector<cv::Mat> &shrinkMat) {
+static std::vector<std::vector<PixelData>> generateRawPixelData(const std::vector<cv::Mat> &shrinkMat) {
 
     auto width = shrinkMat[0].size().width;
     auto height = shrinkMat[0].size().height;
@@ -100,12 +97,9 @@ generateRawPixelData(const std::vector<cv::Mat> &shrinkMat) {
         for (auto y = 0; y < height; ++y) {
             for (auto x = 0; x < width; ++x) {
 
-                pixelRaw[idx][y * width + x].b =
-                    shrinkMat[idx].at<cv::Vec3b>(y, x)[0];
-                pixelRaw[idx][y * width + x].g =
-                    shrinkMat[idx].at<cv::Vec3b>(y, x)[1];
-                pixelRaw[idx][y * width + x].r =
-                    shrinkMat[idx].at<cv::Vec3b>(y, x)[2];
+                pixelRaw[idx][y * width + x].b = shrinkMat[idx].at<cv::Vec3b>(y, x)[0];
+                pixelRaw[idx][y * width + x].g = shrinkMat[idx].at<cv::Vec3b>(y, x)[1];
+                pixelRaw[idx][y * width + x].r = shrinkMat[idx].at<cv::Vec3b>(y, x)[2];
             }
         }
     }
@@ -113,9 +107,8 @@ generateRawPixelData(const std::vector<cv::Mat> &shrinkMat) {
     return pixelRaw;
 }
 
-static std::array<std::vector<std::vector<int>>, 3>
-convertToZ(const std::vector<std::vector<PixelData>> &pixelRaw,
-           const size_t imageSize, const size_t numOfImage) {
+static std::array<std::vector<std::vector<int>>, 3> convertToZ(const std::vector<std::vector<PixelData>> &pixelRaw,
+                                                               const size_t imageSize, const size_t numOfImage) {
 
     std::array<std::vector<std::vector<int>>, 3> Z; // r, g, b
 
@@ -169,8 +162,7 @@ int main(int argc, char *argv[]) {
     HDRI::DebevecWeight dwf;
 
     auto shrinkMat = shrinkImages(imageFiles);
-    std::vector<std::vector<PixelData>> pixelRaw =
-        generateRawPixelData(shrinkMat);
+    std::vector<std::vector<PixelData>> pixelRaw = generateRawPixelData(shrinkMat);
 
     std::cerr << "Convert\n";
 
@@ -190,9 +182,7 @@ int main(int argc, char *argv[]) {
     std::array<std::future<cv::Mat>, 3> gFutures;
 
     for (size_t c = 0; c < Z.size(); ++c) {
-        gFutures[c] =
-            std::async(std::launch::async, HDRI::LinearLeastSquares::solver,
-                       Z[c], expo, dwf, lambda);
+        gFutures[c] = std::async(std::launch::async, HDRI::LinearLeastSquares::solver, Z[c], expo, dwf, lambda);
         std::cerr << "Async Compute\n";
     }
 
@@ -237,8 +227,7 @@ int main(int argc, char *argv[]) {
 
     auto end_time = std::chrono::high_resolution_clock::now();
 
-    auto time_span = std::chrono::duration_cast<std::chrono::duration<double>>(
-        end_time - start_time);
+    auto time_span = std::chrono::duration_cast<std::chrono::duration<double>>(end_time - start_time);
 
     std::cout << "Execution time : " << time_span.count() << "s\n";
 
