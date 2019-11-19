@@ -5,12 +5,13 @@ High-dynamic-range imaging
 ## System requirements and Dependencies
 
 - [CMake 3.6+](https://cmake.org/)
-- [OpenCV 3.2+](http://opencv.org/)
+- [Conan 1.20.3+](https://conan.io/)
 
-The following compilers are supported:
+The following compilers are tested:
 
-- Visual Studio 2015 or 2017 (Windows x64)
-- Apple LLVM version 9.1.0 (Mac x64)
+- Visual Studio 2017 (Windows x64)
+- GCC 5.5.0 (Linux x64)
+- Apple LLVM version 11.0.0 (Mac x64)
 
 
 ## Build
@@ -20,9 +21,8 @@ The following compilers are supported:
 I have recently changed from premake to [CMake](https://cmake.org/).
 Below are instructions of using a GCC-based compiler as an example.
 
-
 1. Create your build directory `mkdir build && cd build`
-2. Run Conan `conan install .. -s cppstd=17 --build missing`
+2. Run Conan `conan install .. -s compiler.cppstd=17 --build missing` . The dependencies should be resolved by conan
 3. Run CMake `cmake ..` for development or `cmake -DCMAKE_BUILD_TYPE=Release` for a release build
 4. Compile by running `make`
 5. Run test case by `make test`
