@@ -6,21 +6,20 @@ void HDRI::HDRImage::computeRadiance(const std::vector<HDRI::RawImage> &imageFil
                                      const std::array<cv::Mat, 3> &gCurves, HDRI::WeightFunction &dwf,
                                      const std::vector<double> &expo) {
 
-    mRadiance = constructRadiance(imageFiles, gCurves, dwf, expo);
+  mRadiance = constructRadiance(imageFiles, gCurves, dwf, expo);
 }
 
-cv::Mat HDRI::HDRImage::getRadiance() const { return mRadiance; }
+auto HDRI::HDRImage::getRadiance() const -> cv::Mat { return mRadiance; }
 
 void HDRI::HDRImage::setToneMappingAlgorithm(ToneMapAlgo *algo) { mAlgoSelect = algo; }
 
-cv::Mat HDRI::HDRImage::getToneMappingResult() const {
+auto HDRI::HDRImage::getToneMappingResult() const -> cv::Mat {
 
-    if (mAlgoSelect) {
-        return mAlgoSelect->toneMap(mRadiance);
-    } else {
+  if (mAlgoSelect != nullptr) {
+    return mAlgoSelect->toneMap(mRadiance);
+  }
 
-        std::cerr << "No algorithm selected\n";
+  std::cerr << "No algorithm selected\n";
 
-        return cv::Mat();
-    }
+  return cv::Mat();
 }

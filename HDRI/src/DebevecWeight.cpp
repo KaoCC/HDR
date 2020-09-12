@@ -10,30 +10,29 @@ const int DebevecWeight::N = 256;
 
 DebevecWeight::DebevecWeight() {
 
-    mTable.resize(N);
-    for (auto i = 0; i < N; ++i) {
+  mTable.resize(N);
+  for (auto i = 0; i < N; ++i) {
 
-        if (i <= (0.5 * (kZmax + kZmin))) {
-            mTable[i] = static_cast<std::uint8_t>(i - kZmin);
-        } else {
-            mTable[i] = static_cast<std::uint8_t>(kZmax - i);
-        }
+    if (i <= (0.5 * (kZmax + kZmin))) {
+      mTable[i] = static_cast<std::uint8_t>(i - kZmin);
+    } else {
+      mTable[i] = static_cast<std::uint8_t>(kZmax - i);
     }
+  }
 
-    std::cerr << N << std::endl;
+  std::cerr << N << std::endl;
 }
 
-size_t DebevecWeight::getSize() const { return N; }
+auto DebevecWeight::getSize() const -> size_t { return N; }
 
-double DebevecWeight::getWeight(int index) const {
+auto DebevecWeight::getWeight(int index) const -> double {
 
-    // cap ?
+  // cap ?
 
-    if (index < kZmin || index > kZmax) {
-        return 0;
-    } else {
-        return mTable[index];
-    }
+  if (index < kZmin || index > kZmax) {
+    return 0;
+  }
+  return mTable[index];
 }
 
 } // namespace HDRI

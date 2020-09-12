@@ -7,8 +7,8 @@ namespace HDRI {
 
 class ReinhardAlgo : public ToneMapAlgo {
 
-  public:
-    virtual cv::Mat toneMap(const cv::Mat &inputRadiance) override;
+public:
+  [[nodiscard]] cv::Mat toneMap(const cv::Mat &inputRadiance) override;
 };
 
 } // namespace HDRI

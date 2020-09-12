@@ -12,11 +12,11 @@ namespace HDRI {
 
 class LinearLeastSquares {
 
-  public:
-    LinearLeastSquares() = delete;
+public:
+  LinearLeastSquares() = delete;
 
-    static cv::Mat solver(const std::vector<std::vector<int>> &Z, const std::vector<double> &deltaT,
-                          const WeightFunction &wf, int lambda);
+  [[nodiscard]] static cv::Mat solver(const std::vector<std::vector<int>> &Z, const std::vector<double> &deltaT,
+                                      const WeightFunction &wf, int lambda);
 };
 
 } // namespace HDRI

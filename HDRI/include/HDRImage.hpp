@@ -12,21 +12,21 @@ namespace HDRI {
 
 class HDRImage {
 
-  public:
-    HDRImage() = default;
+public:
+  HDRImage() = default;
 
-    void computeRadiance(const std::vector<HDRI::RawImage> &imageFiles, const std::array<cv::Mat, 3> &gCurves,
-                         HDRI::WeightFunction &dwf, const std::vector<double> &expo);
-    cv::Mat getRadiance() const;
+  void computeRadiance(const std::vector<HDRI::RawImage> &imageFiles, const std::array<cv::Mat, 3> &gCurves,
+                       HDRI::WeightFunction &dwf, const std::vector<double> &expo);
+  [[nodiscard]] cv::Mat getRadiance() const;
 
-    void setToneMappingAlgorithm(ToneMapAlgo *algo);
+  void setToneMappingAlgorithm(ToneMapAlgo *algo);
 
-    cv::Mat getToneMappingResult() const;
+  [[nodiscard]] cv::Mat getToneMappingResult() const;
 
-  private:
-    cv::Mat mRadiance;
+private:
+  cv::Mat mRadiance;
 
-    ToneMapAlgo *mAlgoSelect = nullptr;
+  ToneMapAlgo *mAlgoSelect = nullptr;
 };
 
 } // namespace HDRI

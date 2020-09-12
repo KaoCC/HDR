@@ -7,24 +7,24 @@ namespace HDRI {
 
 class RawImage {
 
-  public:
-    RawImage() = default;
+public:
+  RawImage() = default;
 
-    void load(const std::string fileName, double ss);
+  void load(const std::string &fileName, double ss);
 
-    size_t getTotalSize() const;
+  [[nodiscard]] size_t getTotalSize() const;
 
-    int getWidth() const;
-    int getHeight() const;
+  [[nodiscard]] int getWidth() const;
+  [[nodiscard]] int getHeight() const;
 
-    const cv::Mat &getImageData() const;
+  [[nodiscard]] const cv::Mat &getImageData() const;
 
-    double getExposure() const;
+  [[nodiscard]] double getExposure() const;
 
-  private:
-    cv::Mat mImageData;
-    std::string mName;
-    double expo;
+private:
+  cv::Mat mImageData;
+  std::string mName;
+  double expo;
 };
 
 } // namespace HDRI
