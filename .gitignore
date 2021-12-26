@@ -34,3 +34,5 @@
 
 Build/*
 Generated/*
+
+.vscode/*

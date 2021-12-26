@@ -4,24 +4,20 @@ High-dynamic-range imaging
 
 ## System requirements and Dependencies
 
-- [CMake 3.6+](https://cmake.org/)
-- [Conan 1.20.3+](https://conan.io/)
+- [CMake 3.8+](https://cmake.org/)
+- [Conan 1.40+](https://conan.io/)
 
 The following compilers are tested:
 
 - Visual Studio 2017 (Windows x64)
 - GCC 5.5.0 (Linux x64)
-- Apple LLVM version 11.0.0 (Mac x64)
-
+- Apple LLVM version 13.0.0 (Mac x64)
 
 ## Build
 
 ### Windows & Mac OS X & Linux
 
-I have recently changed from premake to [CMake](https://cmake.org/).
-Below are instructions of using a GCC-based compiler as an example.
-
-1. Create your build directory `mkdir build && cd build`
+1. Create the build directory `mkdir build && cd build`
 2. Run Conan `conan install .. -s compiler.cppstd=17 --build missing` . The dependencies should be resolved by conan
 3. Run CMake `cmake ..` for development or `cmake -DCMAKE_BUILD_TYPE=Release` for a release build
 4. Compile by running `make`
@@ -33,7 +29,7 @@ Note that for Windows platform you may need to copy necessary files such as dlls
 
 ## Usage
 
-`./hdri (BaseDirPath) (FileListName)`
+`./hdri [BaseDirPath] [FileListName]`
 
 For example:
 
@@ -41,8 +37,8 @@ For example:
 
 Note: The default base path is "../InputImage/" and the default name of the file list is "list.txt". You do not have to type it explicitly.
 
-The program will generate the radiance map called "radiance.hdr". Based on the radiance map, the tone algorithm will be triggered to generate the output image. The file name will be "output_image.jpg".
-Moreover, the reconstructed G curve (and ln E) will be written to a file called "out.txt".
+The program will first generate the radiance map. After that, it will generate the output image using tone mapping.
+Moreover, the reconstructed G curve (and ln E) will be written to a file.
 
 
 ## Layout
