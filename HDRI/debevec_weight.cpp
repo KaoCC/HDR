@@ -3,31 +3,26 @@
 namespace {
 constexpr int z_min = 0;
 constexpr int z_max = 255;
-constexpr int range = z_max - z_min + 1;
+constexpr int size = z_max - z_min + 1;
+constexpr auto z_mid = static_cast<int>(0.5 * (z_max + z_min));
 }  // namespace
 
 namespace HDRI {
 
-debevec_weight::debevec_weight() {
-  table.resize(range);
-  for (auto i = 0; i < range; ++i) {
-    if (i <= (0.5 * (z_max + z_min))) {
-      table[i] = static_cast<std::uint8_t>(i - z_min);
-    } else {
-      table[i] = static_cast<std::uint8_t>(z_max - i);
-    }
-  }
-}
+auto debevec_weight::get_size() noexcept -> std::size_t { return size; }
 
-auto debevec_weight::get_size() const noexcept -> size_t { return range; }
-
-auto debevec_weight::get_weight(int index) const noexcept -> double {
+auto debevec_weight::get_weight(const int z_value) noexcept -> double {
   // cap ?
 
-  if (index < z_min || index > z_max) {
-    return 0;
+  if (z_value < z_min || z_value > z_max) {
+    return 0.0;
   }
-  return table[index];
+
+  if (z_value <= z_mid) {
+    return z_value - z_min;
+  }
+
+  return z_max - z_value;
 }
 
 }  // namespace HDRI

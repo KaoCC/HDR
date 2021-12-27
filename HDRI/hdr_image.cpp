@@ -53,7 +53,7 @@ std::vector<cv::Mat> shrink_images(const std::vector<HDRI::raw_image> &input) no
   std::vector<cv::Mat> out;
   out.reserve(std::size(input));
 
-  constexpr size_t ratio = 100UL;
+  constexpr size_t ratio = 50UL;
 
   for (const auto &img : input) {
     const auto &image_data = img.get_image_data();
@@ -108,13 +108,13 @@ std::array<std::vector<std::vector<int>>, 3UL> convert_to_z(const std::vector<st
     z_colors.resize(image_size);
   }
 
-  for (size_t i = 0; i < image_size; ++i) {  // image pixel
+  for (auto i = 0UL; i < image_size; ++i) {  // number of pixels in an image
 
     z_values[0UL][i].resize(num_images);
     z_values[1UL][i].resize(num_images);
     z_values[2UL][i].resize(num_images);
 
-    for (size_t j = 0; j < num_images; ++j) {  // num of iamge
+    for (auto j = 0UL; j < num_images; ++j) {  // number of images
       z_values[0UL][i][j] = pixel[j][i].b;
       z_values[1UL][i][j] = pixel[j][i].g;
       z_values[2UL][i][j] = pixel[j][i].r;
@@ -151,15 +151,14 @@ void hdr_image::compute_curves(const std::vector<HDRI::raw_image> &raw_images,
   // convert
   const auto z_values = convert_to_z(raw_pixel, shrink_mat[0UL].total(), shrink_mat.size());
 
-  debevec_weight dwf;
   constexpr auto lambda = 10;
 
-  const auto weight_function = [&dwf](const auto color_index) { return dwf.get_weight(color_index); };
+  const auto weight_function = [](const auto color) { return debevec_weight::get_weight(color); };
 
   std::array<std::future<cv::Mat>, 3UL> futures;
   for (auto c = 0U; c < std::size(z_values); ++c) {
     futures[c] = std::async(std::launch::async, linear_least_square_solver<decltype(weight_function)>, weight_function,
-                            z_values[c], exposure, dwf.get_size(), lambda);
+                            z_values[c], exposure, debevec_weight::get_size(), lambda);
   }
 
   for (auto c = 0U; c < std::size(futures); ++c) {
@@ -169,9 +168,7 @@ void hdr_image::compute_curves(const std::vector<HDRI::raw_image> &raw_images,
 
 void hdr_image::compute_radiance(const std::vector<HDRI::raw_image> &raw_images,
                                  const std::vector<double> &exposure) noexcept {
-  debevec_weight dwf;
-  radiance = construct_radiance(
-      raw_images, curves, [&dwf](auto color_index) { return dwf.get_weight(color_index); }, exposure);
+  radiance = construct_radiance(raw_images, curves, debevec_weight::get_weight, exposure);
 }
 
 const cv::Mat &hdr_image::get_radiance() const noexcept { return radiance; }

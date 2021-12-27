@@ -1,17 +1,14 @@
 #pragma once
 
-#include <vector>
+#include <cstddef>
 
 namespace HDRI {
 
 class debevec_weight final {
  public:
-  debevec_weight();
-  [[nodiscard]] double get_weight(const int index) const noexcept;
-  [[nodiscard]] std::size_t get_size() const noexcept;
-
- private:
-  std::vector<std::uint8_t> table;
+  debevec_weight() = delete;
+  [[nodiscard]] static double get_weight(const int index) noexcept;
+  [[nodiscard]] static std::size_t get_size() noexcept;
 };
 
 }  // namespace HDRI
