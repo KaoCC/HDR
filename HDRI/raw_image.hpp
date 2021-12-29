@@ -8,7 +8,7 @@ namespace HDRI {
 
 class raw_image final {
  public:
-  explicit raw_image(std::string file_name, const double shutter_speed);
+  explicit raw_image(const std::string &file_name, const double shutter_speed);
 
   raw_image(const raw_image &) noexcept = default;
   raw_image(raw_image &&) noexcept = default;
@@ -27,7 +27,6 @@ class raw_image final {
 
  private:
   cv::Mat image_data;
-  std::string name;
   double expo;
 };
 

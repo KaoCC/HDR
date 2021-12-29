@@ -7,7 +7,7 @@ namespace HDRI {
 class debevec_weight final {
  public:
   debevec_weight() = delete;
-  [[nodiscard]] static double get_weight(const int index) noexcept;
+  [[nodiscard]] static double get_weight(const int z_value) noexcept;
   [[nodiscard]] static std::size_t get_size() noexcept;
 };
 

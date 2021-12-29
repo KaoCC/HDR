@@ -5,8 +5,8 @@
 
 namespace HDRI {
 
-raw_image::raw_image(std::string file_name, const double shutter_speed)
-    : image_data{cv::imread(file_name)}, expo{1.0 / shutter_speed}, name{std::move(file_name)} {
+raw_image::raw_image(const std::string& file_name, const double shutter_speed)
+    : image_data{cv::imread(file_name)}, expo{1.0 / shutter_speed} {
   if (image_data.empty()) {
     std::cerr << "Fail to load: " + file_name << std::endl;
     throw std::runtime_error("Fail to load" + file_name);

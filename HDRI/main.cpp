@@ -26,14 +26,15 @@ void output_curve(const cv::Mat &curve) noexcept {
 
   std::ofstream fout("out_curve.txt");
 
-  for (auto q = 0UL; q < height; ++q) {
-    for (auto p = 0UL; p < width; ++p) {
+  for (auto q = 0; q < height; ++q) {
+    for (auto p = 0; p < width; ++p) {
       fout << curve.at<double>(q, p) << std::endl;
     }
   }
 }
 
-std::vector<HDRI::raw_image> load_raw_images(const std::string &base_path, const std::string &file_name) noexcept {
+auto load_raw_images(const std::string &base_path, const std::string &file_name) noexcept
+    -> std::vector<HDRI::raw_image> {
   const auto full_path = base_path + file_name;
 
   std::ifstream input(full_path);
@@ -93,7 +94,7 @@ std::vector<HDRI::raw_image> load_raw_images(const std::string &base_path, const
 
 }  // namespace
 
-int main(int argc, char *argv[]) {
+auto main(int argc, char *argv[]) -> int {
   constexpr auto default_base_path{"../InputImage/"};
   constexpr auto default_files{"list.txt"};
 
